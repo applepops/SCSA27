@@ -78,7 +78,7 @@ while True:
     # print(total_moving_walk_q)
 
     check_k = 0
-    for i in range (0, N):
+    for i in range (0, 2*N): #아 미친 여기서 실수함.
         if total_moving_walk_q[i][2] == 0:
             check_k += 1
 
