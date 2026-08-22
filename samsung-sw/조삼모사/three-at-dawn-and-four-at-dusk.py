@@ -8,15 +8,12 @@ def backtracking(n, start_idx):
 
         temp_m = 0
         temp_e = 0
-        
+
         #일의 강도 계산 때리기:
-        for i in range (0, len(morning_works)-1):
-            for j in range (i+1, len(morning_works)):
+        for i in range (0, N//2-1):
+            for j in range (i+1, N//2):
                 temp_m += arr[morning_works[i]][morning_works[j]]
                 temp_m += arr[morning_works[j]][morning_works[i]]
-
-        for i in range (len(evening_works)-1):
-            for j in range (i+1, len(evening_works)):
                 temp_e += arr[evening_works[i]][evening_works[j]]
                 temp_e += arr[evening_works[j]][evening_works[i]]
 
