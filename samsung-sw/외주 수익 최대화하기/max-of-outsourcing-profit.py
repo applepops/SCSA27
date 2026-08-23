@@ -11,19 +11,16 @@ def backtracking(n, profit_sum):
             max_profit_sum = max(max_profit_sum, profit_sum)
         return
 
-
-
     #n 날짜에 외주 작업 수행함
-    for i in range (n, n+works[n][0]):
-        visited[i] += 1
-    backtracking(n+1, profit_sum + works[n][1])
-    #원상복구
-    for i in range (n, n+works[n][0]):
-        visited[i] -= 1
+    if (n+works[n][0]) <= N+1:
+        for i in range (n, n+works[n][0]):
+            visited[i] += 1
+        backtracking(n+1, profit_sum + works[n][1])
+        #원상복구
+        for i in range (n, n+works[n][0]):
+            visited[i] -= 1
     #n 날짜에 외주 작업 수행 안함
     backtracking(n+1, profit_sum)
-
-
 
 #부분집합?
 #전체 날짜
