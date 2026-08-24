@@ -1,4 +1,3 @@
-from collections import deque
 from heapq import heappop, heappush
 
 def bfs (si, sj):
@@ -33,26 +32,15 @@ def bfs (si, sj):
                     heappush(hq, (cur_distance+1, ni, nj))
                     visited[ni][nj] = 1
 
-    #큐를 다 돌아도 그 몬스터에 도달할 수 없으면 걍 inf 반환
+    #큐를 다 돌아도 몬스터에 도달할 수 없으면 걍 inf 반환
     return float("INF")
-
-#현재 로봇 레벨보다 낮은 몬스터들 좌표 찾기
-def find_monster_not_big_as_robot():
-    for i in range(N):
-        for j in range(N):
-            if arr[i][j] != 0 and arr[i][j] < robot_level:
-                monster_lst.append([float("INF"), i, j])
 
 #격자판의 크기 N * N
 N = int(input())
 
 arr = [list(map(int, input().split())) for _ in range (N)]
 
-#현재 나보다 낮은 레벨의 쥐어팰 수 있는 몬스터들을 담아두자.
-#리스트로 [로봇과의 거리, i, j]순으로 요소들이 들어간다.
-monster_lst = []
 total_time = 0
-
 robot_level = 2
 killed_monster_cnt = 0
 
@@ -70,7 +58,7 @@ while True:
 
     new_distance = bfs(robot_i, robot_j)
 
-    if new_distance !=  float("INF"):
+    if new_distance != float("INF"):
         total_time += new_distance
 
         killed_monster_cnt += 1
