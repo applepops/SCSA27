@@ -82,8 +82,10 @@ while True:
             robot_level += 1
             killed_monster_cnt = 0
 
-        monster_lst = [] #비워주기
-        find_monster_not_big_as_robot() #새로 monster_lst 채우기
+            monster_lst = [] #비워주기
+            find_monster_not_big_as_robot() #새로 monster_lst 채우기
+        else:
+            monster_lst = monster_lst[1:]
 
     #맨앞 꺼냈지만 못 간다? 할 일이 없는 거다.
     #혹은 몬스터 리스트가 없다? 할 일이 없는 거다.
