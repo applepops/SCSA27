@@ -1,20 +1,28 @@
 from collections import deque
+from heapq import heappop, heappush
 
-def bfs (si, sj, ei, ej):
+def bfs (si, sj):
 
-    q = deque()
-    q.append((0, si, sj))
+    global robot_i
+    global robot_j
+
+    hq = []
+    heappush(hq, (0, si, sj))
     visited = [[0] * N for _ in range (N)]
     visited[si][sj] = 1
 
-    while q:
-        cur_distance, cur_i, cur_j = q.popleft()
+    while hq:
 
-        #몬스터를 찾았다. 거리 반환.
-        if cur_i == ei and cur_j == ej:
+        cur_distance, cur_i, cur_j = heappop(hq)
+
+        if arr[cur_i][cur_j] != 0 and arr[cur_i][cur_j] < robot_level:
+            arr[cur_i][cur_j] = 0 #몬스터 없애주기
+            robot_i = cur_i #로봇 위치 재계산
+            robot_j = cur_j
+
             return cur_distance
 
-        for di, dj in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+        for di, dj in ((-1, 0), (0, -1), (1, 0), (0, 1)):
             ni = di + cur_i
             nj = dj + cur_j
 
@@ -22,7 +30,7 @@ def bfs (si, sj, ei, ej):
             if 0 <= ni < N and 0 <= nj < N and visited[ni][nj] == 0:
                 #로봇보다 높은 레벨이 아닌지.. or 빈칸인지..
                 if arr[ni][nj] <= robot_level:
-                    q.append((cur_distance+1, ni, nj))
+                    heappush(hq, (cur_distance+1, ni, nj))
                     visited[ni][nj] = 1
 
     #큐를 다 돌아도 그 몬스터에 도달할 수 없으면 걍 inf 반환
@@ -57,38 +65,19 @@ for i in range (N):
         if arr[i][j] == 9:
             robot_i, robot_j = i, j
             arr[robot_i][robot_j] = 0 #로봇 첫 위치 없애버린다. 걸리적거리니까.
-find_monster_not_big_as_robot()
 
 while True:
 
-    for i in range (len(monster_lst)):
-        new_distance = bfs(robot_i, robot_j, monster_lst[i][1], monster_lst[i][2])
-        monster_lst[i][0] = new_distance
+    new_distance = bfs(robot_i, robot_j)
 
-    #거리가 가까운 순, 행 오름차순, 열 오름차순
-    monster_lst = sorted(monster_lst, key = lambda x: (x[0], x[1], x[2]))
-    # print(monster_lst)
-
-    if len(monster_lst) > 0 and monster_lst[0][0] != float("INF"):
-        total_time += monster_lst[0][0] #시간 더해주기
-        arr[monster_lst[0][1]][monster_lst[0][2]] = 0 #몬스터 없애주기
-        #로봇 위치 갱신
-        robot_i = monster_lst[0][1]
-        robot_j = monster_lst[0][2]
+    if new_distance !=  float("INF"):
+        total_time += new_distance
 
         killed_monster_cnt += 1
-        #본인 레벨과 같은 수의 몬스터를 없앨 때마다 레벨 업.
+        # 본인 레벨과 같은 수의 몬스터를 없앨 때마다 레벨 업.
         if killed_monster_cnt == robot_level:
             robot_level += 1
             killed_monster_cnt = 0
-
-            monster_lst = [] #비워주기
-            find_monster_not_big_as_robot() #새로 monster_lst 채우기
-        else:
-            monster_lst = monster_lst[1:]
-
-    #맨앞 꺼냈지만 못 간다? 할 일이 없는 거다.
-    #혹은 몬스터 리스트가 없다? 할 일이 없는 거다.
     else:
         break
 
