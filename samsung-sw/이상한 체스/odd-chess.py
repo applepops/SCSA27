@@ -34,178 +34,84 @@ def go_horse(which_horse, si, sj, way):
                 break
 
     elif which_horse == 2:
-        while True:
-            ni = ci + dxdy2[way][0][0]
-            nj = cj + dxdy2[way][0][1]
 
-            if 0 <= ni < N and 0 <= nj < M:
-                # 상대편 말이 아닌 이상
-                if arr[ni][nj] != 6:
-                    my_visited[ni][nj] = 1
-                    ci = ni
-                    cj = nj
+        for k in range (2):
+            ci, cj = si, sj
+            while True:
+                ni = ci + dxdy2[way][k][0]
+                nj = cj + dxdy2[way][k][1]
+
+                if 0 <= ni < N and 0 <= nj < M:
+                    # 상대편 말이 아닌 이상
+                    if arr[ni][nj] != 6:
+                        my_visited[ni][nj] = 1
+                        ci = ni
+                        cj = nj
+                    else:
+                        break
                 else:
                     break
-            else:
-                break
 
-        ci, cj = si, sj
-        while True:
-            ni = ci + dxdy2[way][1][0]
-            nj = cj + dxdy2[way][1][1]
-
-            if 0 <= ni < N and 0 <= nj < M:
-                # 상대편 말이 아닌 이상
-                if arr[ni][nj] != 6:
-                    my_visited[ni][nj] = 1
-                    ci = ni
-                    cj = nj
-                else:
-                    break
-            else:
-                break
     elif which_horse == 3:
-        while True:
-            ni = ci + dxdy3[way][0][0]
-            nj = cj + dxdy3[way][0][1]
+        for k in range (2):
+            ci, cj = si, sj
+            while True:
+                ni = ci + dxdy3[way][k][0]
+                nj = cj + dxdy3[way][k][1]
 
-            if 0 <= ni < N and 0 <= nj < M:
-                # 상대편 말이 아닌 이상
-                if arr[ni][nj] != 6:
-                    my_visited[ni][nj] = 1
-                    ci = ni
-                    cj = nj
+                if 0 <= ni < N and 0 <= nj < M:
+                    # 상대편 말이 아닌 이상
+                    if arr[ni][nj] != 6:
+                        my_visited[ni][nj] = 1
+                        ci = ni
+                        cj = nj
+                    else:
+                        break
                 else:
                     break
-            else:
-                break
-        ci, cj = si, sj
-        while True:
-            ni = ci + dxdy3[way][1][0]
-            nj = cj + dxdy3[way][1][1]
-
-            if 0 <= ni < N and 0 <= nj < M:
-                # 상대편 말이 아닌 이상
-                if arr[ni][nj] != 6:
-                    my_visited[ni][nj] = 1
-                    ci = ni
-                    cj = nj
-                else:
-                    break
-            else:
-                break
 
     elif which_horse == 4:
-        while True:
-            ni = ci + dxdy4[way][0][0]
-            nj = cj + dxdy4[way][0][1]
+        for k in range (3):
+            ci, cj = si, sj
+            while True:
+                ni = ci + dxdy4[way][k][0]
+                nj = cj + dxdy4[way][k][1]
 
-            if 0 <= ni < N and 0 <= nj < M:
-                # 상대편 말이 아닌 이상
-                if arr[ni][nj] != 6:
-                    my_visited[ni][nj] = 1
-                    ci = ni
-                    cj = nj
+                if 0 <= ni < N and 0 <= nj < M:
+                    # 상대편 말이 아닌 이상
+                    if arr[ni][nj] != 6:
+                        my_visited[ni][nj] = 1
+                        ci = ni
+                        cj = nj
+                    else:
+                        break
                 else:
                     break
-            else:
-                break
-        ci, cj = si, sj
-        while True:
-            ni = ci + dxdy4[way][1][0]
-            nj = cj + dxdy4[way][1][1]
 
-            if 0 <= ni < N and 0 <= nj < M:
-                # 상대편 말이 아닌 이상
-                if arr[ni][nj] != 6:
-                    my_visited[ni][nj] = 1
-                    ci = ni
-                    cj = nj
-                else:
-                    break
-            else:
-                break
-        ci, cj = si, sj
-        while True:
-            ni = ci + dxdy4[way][2][0]
-            nj = cj + dxdy4[way][2][1]
-
-            if 0 <= ni < N and 0 <= nj < M:
-                # 상대편 말이 아닌 이상
-                if arr[ni][nj] != 6:
-                    my_visited[ni][nj] = 1
-                    ci = ni
-                    cj = nj
-                else:
-                    break
-            else:
-                break
     elif which_horse == 5:
-        while True:
-            ni = ci + dxdy5[way][0][0]
-            nj = cj + dxdy5[way][0][1]
+        for k in range (4):
+            ci, cj = si, sj
+            while True:
+                ni = ci + dxdy5[way][k][0]
+                nj = cj + dxdy5[way][k][1]
 
-            if 0 <= ni < N and 0 <= nj < M:
-                # 상대편 말이 아닌 이상
-                if arr[ni][nj] != 6:
-                    my_visited[ni][nj] = 1
-                    ci = ni
-                    cj = nj
+                if 0 <= ni < N and 0 <= nj < M:
+                    # 상대편 말이 아닌 이상
+                    if arr[ni][nj] != 6:
+                        my_visited[ni][nj] = 1
+                        ci = ni
+                        cj = nj
+                    else:
+                        break
                 else:
                     break
-            else:
-                break
-        ci, cj = si, sj
-        while True:
-            ni = ci + dxdy5[way][1][0]
-            nj = cj + dxdy5[way][1][1]
-
-            if 0 <= ni < N and 0 <= nj < M:
-                # 상대편 말이 아닌 이상
-                if arr[ni][nj] != 6:
-                    my_visited[ni][nj] = 1
-                    ci = ni
-                    cj = nj
-                else:
-                    break
-            else:
-                break
-        ci, cj = si, sj
-        while True:
-            ni = ci + dxdy5[way][2][0]
-            nj = cj + dxdy5[way][2][1]
-
-            if 0 <= ni < N and 0 <= nj < M:
-                # 상대편 말이 아닌 이상
-                if arr[ni][nj] != 6:
-                    my_visited[ni][nj] = 1
-                    ci = ni
-                    cj = nj
-                else:
-                    break
-            else:
-                break
-        ci, cj = si, sj
-        while True:
-            ni = ci + dxdy5[way][3][0]
-            nj = cj + dxdy5[way][3][1]
-
-            if 0 <= ni < N and 0 <= nj < M:
-                # 상대편 말이 아닌 이상
-                if arr[ni][nj] != 6:
-                    my_visited[ni][nj] = 1
-                    ci = ni
-                    cj = nj
-                else:
-                    break
-            else:
-                break
     else:
         return
 
-def print_my_visited():
-    for row in my_visited:
-        print(*row)
+#디버깅용 프린트 함수
+# def print_my_visited():
+#     for row in my_visited:
+#         print(*row)
 
 
 def backtracking(n):
@@ -215,10 +121,10 @@ def backtracking(n):
     # 종료조건
     if n == len(horses_lst):
         my_visited = [[0] * M for _ in range(N)]
-        # print(where_to_go)
+
         for h in range(len(horses_lst)):
             go_horse(horses_lst[h][0], horses_lst[h][1], horses_lst[h][2], where_to_go[h])
-        # print_my_visited()
+
         temp = N*M - sum(map(sum, my_visited))
         min_sum = min(min_sum, temp)
         return
@@ -271,7 +177,8 @@ for i in range(N):
 
 visited = [[0] * M for _ in range(N)]
 min_sum = float("INF")
-# print(horses_lst)
 where_to_go = []
+
 backtracking(0)
+
 print(min_sum-other_team_horse_cnt)
