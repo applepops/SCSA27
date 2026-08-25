@@ -26,23 +26,6 @@ def find_max_r():
             return max_r
     return max_r + 1
 
-#최장 열의 길이를 반환하는디?
-def find_cur_r(cur_r):
-    for j in range (100):
-        if arr[cur_r][j] == 0:
-            return j-1
-    else:
-        return j
-
-#최장 행의 길이를 반환하는디?
-def find_cur_c(cur_c):
-    for i in range (100):
-        if arr[i][cur_c] == 0:
-            return i-1
-    else:
-        return i
-    pass
-
 def print_arr(cur_r, cur_c):
     for i in range (cur_r):
         for j in range (cur_c):
@@ -65,6 +48,7 @@ cur_time = 0
 
 while True:
 
+    #엣지케이스: 게임을 진행하지 않아도 이미 답이 나온 경우
     if arr[ans_r][ans_c] == ans_k:
         print(cur_time)
         break
@@ -77,7 +61,6 @@ while True:
 
     #행의 개수가 열의 개수보다 크거나 같은 경우
     if cur_r >= cur_c:
-        # print("행이 더 길다.")
         #i는 처리해줄 이번 행이다.
         for i in range (cur_r):
             cur_r_dict = dict()
@@ -103,20 +86,13 @@ while True:
                     arr[i][temp_j+1] = c
                 temp_j += 2
 
-
-            # res = find_cur_r(i)
-            # print(f"{i}번째 행에서 {res}")
-
             if len(temp_lst)*2-1 < max_cur:
                 for tmp in range (len(temp_lst)*2, max_cur+1):
                     arr[i][tmp] = 0
 
-            # print(temp_lst)
-
 
     #열의 개수가 행의 개수보다 큰 경우
     else:
-        # print("열이 더 길다.")
         # j는 처리해줄 이번 열이다.
         for j in range(cur_c):
             cur_c_dict = dict()
@@ -135,8 +111,6 @@ while True:
                 # 출현 빈도 수, 해당 숫자
                 temp_lst.append((cnt, key))
                 temp_lst = sorted(temp_lst, key=lambda x: (x[0], x[1]))
-            # print("0이 들어가냐?")
-            # print(temp_lst)
 
             # 다시 배열에 넣어주기
             temp_i = 0
@@ -150,11 +124,6 @@ while True:
             if len(temp_lst) * 2 - 1 < max_cur:
                 for tmp in range(len(temp_lst) * 2, max_cur + 1):
                     arr[tmp][j] = 0
-
-    # cur_r = find_max_r()
-    # cur_c = find_max_c()
-    # print(f"{cur_time} 지금 시간 이런데 상태는?")
-    # print_arr(cur_r, cur_c)
 
 
     if arr[ans_r][ans_c] == ans_k:
