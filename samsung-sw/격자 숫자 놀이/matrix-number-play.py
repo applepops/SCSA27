@@ -65,6 +65,10 @@ cur_time = 0
 
 while True:
 
+    if arr[ans_r][ans_c] == ans_k:
+        print(cur_time)
+        break
+
     cur_time += 1
 
     cur_r = find_max_r()
@@ -147,10 +151,10 @@ while True:
                 for tmp in range(len(temp_lst) * 2, max_cur + 1):
                     arr[tmp][j] = 0
 
-    # cur_r = find_max_r()
-    # cur_c = find_max_c()
-    # print(f"{cur_time} 지금 시간 이런데 상태는?")
-    # print_arr(cur_r, cur_c)
+    cur_r = find_max_r()
+    cur_c = find_max_c()
+    print(f"{cur_time} 지금 시간 이런데 상태는?")
+    print_arr(cur_r, cur_c)
 
 
     if arr[ans_r][ans_c] == ans_k:
