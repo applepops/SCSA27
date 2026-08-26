@@ -38,13 +38,13 @@ def rotate_by_level(ci, cj, cur_level):
 
     temp_lst = []
 
-    for i in range (ci, ci+2**cur_level, cur_level):
-        for j in range (cj, cj+2**cur_level, cur_level):
+    for i in range (ci, ci+2**cur_level, 2**(cur_level-1)):
+        for j in range (cj, cj+2**cur_level,  2**(cur_level-1)):
             #단위 안에 있는 작은 회전해야 하는 애들이 시작하는 꼭짓점
             temp_lst.append([i, j])
 
     for i in range (len(temp_lst)):
-        mini_arr = [row[temp_lst[i][1]:temp_lst[i][1]+cur_level] for row in tmp_arr[temp_lst[i][0]:temp_lst[i][0]+cur_level]]
+        mini_arr = [row[temp_lst[i][1]:temp_lst[i][1]+2**(cur_level-1)] for row in tmp_arr[temp_lst[i][0]:temp_lst[i][0]+2**(cur_level-1)]]
         if i == 0:
             new_i = 1
         elif i == 1:
@@ -55,10 +55,9 @@ def rotate_by_level(ci, cj, cur_level):
             new_i = 2
 
         #돌려주기
-        for p in range (temp_lst[new_i][0],temp_lst[new_i][0]+cur_level):
-            for q in range (temp_lst[new_i][1], temp_lst[new_i][1]+cur_level):
+        for p in range (temp_lst[new_i][0],temp_lst[new_i][0]+2**(cur_level-1)):
+            for q in range (temp_lst[new_i][1], temp_lst[new_i][1]+2**(cur_level-1)):
                 arr[p][q] = mini_arr[p-temp_lst[new_i][0]][q-temp_lst[new_i][1]]
-
 
 
 #인자로 받는 것은 level
