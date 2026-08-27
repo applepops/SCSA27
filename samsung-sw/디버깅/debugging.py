@@ -28,52 +28,24 @@ def check_no_bug(lst):
     else:
         return True
 
-def backtracking1(n):
-    if n == 1:
-        tmp_tmp_lst = [row[:] for row in tmp_lst[:]]
-        tmp_tmp_lst = sorted(tmp_tmp_lst, key=lambda x: x[0])
-        if check_no_bug(tmp_tmp_lst):
-            print(1)
-            exit()
-        else:
-            return
+def backtracking(n, start_idx, target):
+    if n == target:
+        tmp_tmp_lst = sorted(tmp_lst, key=lambda x: x[0])
 
-    for i in range (len(fix_bug_lines_hubo)):
+        if check_no_bug(tmp_tmp_lst):
+            print(target)
+            exit()
+
+        return
+
+    for i in range(start_idx, len(fix_bug_lines_hubo)):
         tmp_lst.append(fix_bug_lines_hubo[i])
-        backtracking1(n+1)
+        backtracking(n + 1, i + 1, target)
         tmp_lst.pop()
 
 
 
-def backtracking2(n, start_idx):
-    if n == 2:
-        tmp_tmp_lst = [row[:] for row in tmp_lst[:]]
-        tmp_tmp_lst = sorted(tmp_tmp_lst, key=lambda x: x[0])
-        if check_no_bug(tmp_tmp_lst):
-            print(2)
-            exit()
-        else:
-            return
 
-    for i in range (start_idx, len(fix_bug_lines_hubo)):
-        tmp_lst.append(fix_bug_lines_hubo[i])
-        backtracking2(n+1, i+1)
-        tmp_lst.pop()
-
-def backtracking3(n, start_idx):
-    if n == 3:
-        tmp_tmp_lst = [row[:] for row in tmp_lst[:]]
-        tmp_tmp_lst = sorted(tmp_tmp_lst, key=lambda x: x[0])
-        if check_no_bug(tmp_tmp_lst):
-            print(3)
-            exit()
-        else:
-            return
-
-    for i in range (start_idx, len(fix_bug_lines_hubo)):
-        tmp_lst.append(fix_bug_lines_hubo[i])
-        backtracking3(n+1, i+1)
-        tmp_lst.pop()
 
 
 #고객의 수(세로선 개수), 메모리 유실 선의 개수(버그 개수), 취약 지점의 개수(가로선 개수)
@@ -112,9 +84,9 @@ if check_no_bug(bug_lines):
 
 tmp_lst = [row[:] for row in bug_lines[:]]
 
-backtracking1(0)
-backtracking2(0, 0)
-backtracking3(0, 0)
+for target in range(1, 4):
+    backtracking(0, 0, target)
+
 
 print(-1)
 
