@@ -85,7 +85,7 @@ for line_num, start_cus_num in fix_bug_lines_hubo:
     for r_ln, r_scn in bug_lines:
         if line_num == r_ln and start_cus_num == r_scn:
             fix_bug_lines_hubo.remove((line_num, start_cus_num))
-            if start_cus_num + 1 <= N:
+            if start_cus_num + 1 <= N-1:
                 fix_bug_lines_hubo.remove((line_num, start_cus_num+1))
             if start_cus_num - 1 >= 1:
                 fix_bug_lines_hubo.remove((line_num, start_cus_num-1))
