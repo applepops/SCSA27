@@ -25,13 +25,12 @@ for _ in range (M):
     #age를 먼저 넣어준다! 어린 놈부터 꺼내서 양분 먹어야 해!
     hq.append([age, vr, vc])
 
-hq = deque(sorted(hq, key=lambda x: (x[0], x[1], x[2])))
+hq = deque(sorted(hq, key=lambda x: x[0]))
 
 #K번 동안 반복할 거임
 for k in range (K):
 
     dead_virus_yangboon = [[0] * N for _ in range (N)]
-    new_hq = deque()
     q = deque()
 
     #1) hq에 있는 애들 다 꺼내서 양분 섭취시키거나 죽인다
@@ -43,7 +42,7 @@ for k in range (K):
             current_yangboon[nr][nc] -= n_age
             n_age += 1
             #살아남은 놈들은 새로운 hq에 저장해준다.
-            new_hq.append([n_age, nr, nc])
+            hq.append([n_age, nr, nc])
 
             # 나이가 5의 배수가 된 놈들은 따로 큐에 추가로 저장해준다.
             if n_age % 5 == 0:
@@ -68,15 +67,12 @@ for k in range (K):
 
             # 범위 내인지 확인
             if 0 <= ni < N and 0 <= nj < N:
-                new_hq.appendleft([1, ni, nj])
+                hq.appendleft([1, ni, nj])
 
     #4) 주어진 양분의 양에 따라 칸에 양분 추가
     for i in range (N):
         for j in range (N):
             current_yangboon[i][j] += yangboon_by_cycle[i][j]
-
-    #큐를 스왑해준다.
-    hq = new_hq
 
 #살아있는 바이러스의 양..
 print(len(hq))
