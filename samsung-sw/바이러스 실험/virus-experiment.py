@@ -29,6 +29,7 @@ hq = deque(sorted(hq, key=lambda x: x[0]))
 
 #K번 동안 반복할 거임
 for k in range (K):
+    flag = False
 
     dead_virus_yangboon = [[0] * N for _ in range (N)]
     q = deque()
@@ -41,7 +42,7 @@ for k in range (K):
         if current_yangboon[nr][nc] >= n_age:
             current_yangboon[nr][nc] -= n_age
             n_age += 1
-            #살아남은 놈들은 새로운 hq에 저장해준다.
+            #살아남은 놈들은 다시 저장해준다.
             hq.append([n_age, nr, nc])
 
             # 나이가 5의 배수가 된 놈들은 따로 큐에 추가로 저장해준다.
@@ -50,12 +51,14 @@ for k in range (K):
 
         #바이러스가 죽는 경우
         else:
+            flag = True
             dead_virus_yangboon[nr][nc] += n_age // 2
 
     #2) 죽은 바이러스들의 양분을 그 칸에 더해준다.
-    for i in range (N):
-        for j in range (N):
-            current_yangboon[i][j] += dead_virus_yangboon[i][j]
+    if flag:
+        for i in range (N):
+            for j in range (N):
+                current_yangboon[i][j] += dead_virus_yangboon[i][j]
 
     #3) 나이가 5의 배수인 놈들이 번식한다.
     while q:
