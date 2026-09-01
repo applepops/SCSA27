@@ -88,7 +88,6 @@ while True:
             if color_state[ni][nj] == 0:
                 #위에 바로 얹어버리기
                 arr[ni][nj] = arr[ni][nj] + mal_tmp_lst
-                check_4()
 
                 #아 말놈들을 모두 위치 변경해주어야 한다..
                 for cn in mal_tmp_lst:
@@ -99,7 +98,6 @@ while True:
             elif color_state[ni][nj] == 1:
                 mal_tmp_lst.reverse() #뒤집어주기
                 arr[ni][nj] = arr[ni][nj] + mal_tmp_lst
-                check_4()
 
                 for cn in mal_tmp_lst:
                     horses[cn][0] = ni
@@ -120,13 +118,12 @@ while True:
                     if color_state[ni][nj] == 2:
                         #그냥 원래 있던 곳에 있는다....
                         arr[ci][cj] = arr[ci][cj] + mal_tmp_lst
-                        check_4()
+
                     #파란색 아니고 갈 수 있는 곳이면,
                     else:
                         if color_state[ni][nj] == 1:
                             mal_tmp_lst.reverse()
                         arr[ni][nj] = arr[ni][nj] + mal_tmp_lst
-                        check_4()
 
                         for cn in mal_tmp_lst:
                             horses[cn][0] = ni
@@ -135,7 +132,6 @@ while True:
                 else:
                     #이동 못하는 곳이면? 그냥 거기 있는다...
                     arr[ci][cj] = arr[ci][cj] + mal_tmp_lst
-                    check_4()
 
         #다음 좌표가 이동가능한 곳이 아니면...
         else:
@@ -151,13 +147,12 @@ while True:
                 if color_state[ni][nj] == 2:
                     # 그냥 원래 있던 곳에 있는다....
                     arr[ci][cj] = arr[ci][cj] + mal_tmp_lst
-                    check_4()
+
                 # 파란색 아니고 다른 갈 수 있는 곳이면,
                 else:
                     if color_state[ni][nj] == 1:
                         mal_tmp_lst.reverse()
                     arr[ni][nj] = arr[ni][nj] + mal_tmp_lst
-                    check_4()
 
                     for cn in mal_tmp_lst:
                         horses[cn][0] = ni
@@ -165,10 +160,9 @@ while True:
             else:
                 # 이동 못하는 곳이면? 그냥 거기 있는다...
                 arr[ci][cj] = arr[ci][cj] + mal_tmp_lst
-                check_4()
 
 
-    #4개 이상 겹치는 애 있는지 확인하기
-    check_4()
+        #4개 이상 겹치는 애 있는지 확인하기
+        check_4()
 
 
