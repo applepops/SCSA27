@@ -16,37 +16,36 @@ def move_dorobo(sul_i, sul_j, arr_, dorobos_):
 
         c_dir = dorobos_[i][2]
 
-        ni = ci + didj[c_dir][0]
-        nj = cj + didj[c_dir][1]
-
         for k in range (8): #8번이 맞음. 왜냐면 아예 못 가는 경우에 다시 원래 방향으로 돌아와야 됨.
             #격자 밖이다.
-            if ni < 0 or nj < 0 or ni >= 4 or nj >= 4:
-                #방향 45도 회전
+            ni = ci + didj[c_dir][0]
+            nj = cj + didj[c_dir][1]
+
+            # 격자 밖이거나 술래가 있는 경우
+            if ni < 0 or nj < 0 or ni >= 4 or nj >= 4 \
+                    or (ni == sul_i and nj == sul_j):
+
                 c_dir = (c_dir + 1) % 8
-                ni = ci + didj[c_dir][0]
-                nj = cj + didj[c_dir][1]
-                dorobos_[i][2] = c_dir #방향도 업데이트!
-            #술래가 있는 곳이다.
-            elif ni == sul_i and nj == sul_j:
-                #방향 45도 회전
-                c_dir = (c_dir + 1) % 8
-                ni = ci + didj[c_dir][0]
-                nj = cj + didj[c_dir][1]
-                dorobos_[i][2] = c_dir #방향도 업데이트!
+                continue
+
+            # 이동 가능 → 방향 업데이트
+            dorobos_[i][2] = c_dir
 
             #술래가 없고 격자 안임.
+            #빈칸이면
+            if arr_[ni][nj] == 0:
+                arr_[ci][cj] = 0
+                arr_[ni][nj] = i
+                dorobos_[i][0] = ni
+                dorobos_[i][1] = nj
+
+            #다른 도둑말이 있으면 -> swap
             else:
-                #빈칸이면
-                if arr_[ni][nj] == 0:
-                    arr_[ci][cj] = 0
-                    arr_[ni][nj] = i
-                #다른 도둑말이 있으면 -> swap
-                else:
-                    dorobos_[arr_[ci][cj]][0], dorobos_[arr_[ni][nj]][0] = dorobos_[arr_[ni][nj]][0], dorobos_[arr_[ci][cj]][0]
-                    dorobos_[arr_[ci][cj]][1], dorobos_[arr_[ni][nj]][1] = dorobos_[arr_[ni][nj]][1], dorobos_[arr_[ci][cj]][1]
-                    arr_[ci][cj], arr_[ni][nj] = arr_[ni][nj], arr_[ci][cj]
-                break
+                dorobos_[arr_[ci][cj]][0], dorobos_[arr_[ni][nj]][0] = dorobos_[arr_[ni][nj]][0], dorobos_[arr_[ci][cj]][0]
+                dorobos_[arr_[ci][cj]][1], dorobos_[arr_[ni][nj]][1] = dorobos_[arr_[ni][nj]][1], dorobos_[arr_[ci][cj]][1]
+                arr_[ci][cj], arr_[ni][nj] = arr_[ni][nj], arr_[ci][cj]
+
+            break
 
 def move_sulle(c_sulle_i, c_sulle_j, c_sulle_dir, c_score, arr_, dorobos_):
 
@@ -64,16 +63,20 @@ def move_sulle(c_sulle_i, c_sulle_j, c_sulle_dir, c_score, arr_, dorobos_):
         nj = c_sulle_j + didj[c_sulle_dir][1] * k
 
         if 0 <= ni < 4 and 0 <= nj < 4:
-            #말 잡자
-            visited[arr_[ni][nj]] = 1
-            #깊은 복사해서 넘기자..
-            new_arr = [row[:] for row in arr_[:]]
-            new_arr[ni][nj] = 0
-            new_dorobos = [row[:] for row in dorobos_[:]]
-            #재귀 호출
-            move_sulle(ni, nj, dorobos[arr_[ni][nj]][2], c_score + arr_[ni][nj], new_arr, new_dorobos)
-            #말 놓아주자
-            visited[arr_[ni][nj]] = 0
+            # 도둑말이 없는 곳으로는 이동할 수 없음.
+            if arr_[ni][nj] != 0:
+                #말 잡자
+                visited[arr_[ni][nj]] = 1
+                #깊은 복사해서 넘기자..
+                new_arr = [row[:] for row in arr_[:]]
+                new_arr[ni][nj] = 0
+                new_dorobos = [row[:] for row in dorobos_[:]]
+                #재귀 호출
+                move_sulle(ni, nj, dorobos_[arr_[ni][nj]][2], c_score + arr_[ni][nj], new_arr, new_dorobos)
+                #말 놓아주자
+                visited[arr_[ni][nj]] = 0
+            else:
+                continue
 
         else:
             break
