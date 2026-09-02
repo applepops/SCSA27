@@ -87,24 +87,20 @@ def backtracking(rr, rc, br, bc, n, way):
 
     for i in range (0, 4):
         #빨간 사탕을 기준으로 보내는 경우..
-        # -> 놓친 것은 파란사탕이 빨간 사탕을 막아서 파란사탕을 기준으로 옮겨야 하는 경우
+        # -> 놓친 것은 파란사탕이 빨간 사탕을 막아서 파란사탕을 먼저 기준으로 옮겨야 하는 경우
         nrr = rr + didj[i][0]
         nrc = rc + didj[i][1]
 
-        if arr[nrr][nrc] == '.' or arr[nrr][nrc] == 'O':
-            backtracking(rr, rc, br, bc, n+1, i)
+        # if arr[nrr][nrc] == '.' or arr[nrr][nrc] == 'O':
+        backtracking(rr, rc, br, bc, n+1, i)
 
-    for i in range (0, 4):
-        nbr = br + didj[i][0]
-        nbc = bc + didj[i][1]
-
-        #파란 사탕을 기준으로도 보내보자..
-        if arr[nbr][nbc] == '.' or arr[nrr][nrc] == 'O':
-            ways.append(i)
-            backtracking(rr, rc, br, bc, n+1, i)
-            ways.pop()
-
-
+    # for i in range (0, 4):
+    #     nbr = br + didj[i][0]
+    #     nbc = bc + didj[i][1]
+    #
+    #     #파란 사탕을 기준으로도 보내보자..
+    #     if arr[nbr][nbc] == '.' or arr[nrr][nrc] == 'O':
+    #         backtracking(rr, rc, br, bc, n+1, i)
 
 
 N, M = map(int, input().split())
@@ -127,18 +123,7 @@ for i in range (N):
 
 ways = []
 backtracking(red_r, red_c, blue_r, blue_c, 0, -1)
-# print(red_r, red_c)
-# print(blue_r, blue_c)
-# red_r, red_c, blue_r, blue_c = slide_candy (3, red_r, red_c, blue_r, blue_c)
-# print(red_r, red_c)
-# print(blue_r, blue_c)
-# red_r, red_c, blue_r, blue_c = slide_candy (1, red_r, red_c, blue_r, blue_c)
-# print(red_r, red_c)
-# print(blue_r, blue_c)
-# red_r, red_c, blue_r, blue_c = slide_candy (2, red_r, red_c, blue_r, blue_c)
-# print(red_r, red_c)
-# print(blue_r, blue_c)
-# print(arr[red_r][red_c])
+
 if min_cnt >= 11:
     print(-1)
 else:
