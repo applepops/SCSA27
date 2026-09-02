@@ -86,13 +86,21 @@ def backtracking(rr, rc, br, bc, n, way):
         return
 
     for i in range (0, 4):
+        #빨간 사탕을 기준으로 보내는 경우..
+        # -> 놓친 것은 파란사탕이 빨간 사탕을 막아서 파란사탕을 기준으로 옮겨야 하는 경우
         nrr = rr + didj[i][0]
         nrc = rc + didj[i][1]
 
-        if arr[nrr][nrc] == '#':
-            continue
-        else:
+        nbr = br + didj[i][0]
+        nbc = bc + didj[i][1]
+
+        if arr[nrr][nrc] == '.':
             backtracking(rr, rc, br, bc, n+1, i)
+
+        #파란 사탕을 기준으로도 보내보자..
+        if arr[nbr][nbc] == '.':
+            backtracking(rr, rc, br, bc, n+1, i)
+
 
 
 N, M = map(int, input().split())
