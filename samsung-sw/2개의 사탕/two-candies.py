@@ -91,15 +91,19 @@ def backtracking(rr, rc, br, bc, n, way):
         nrr = rr + didj[i][0]
         nrc = rc + didj[i][1]
 
+        if arr[nrr][nrc] == '.' or arr[nrr][nrc] == 'O':
+            backtracking(rr, rc, br, bc, n+1, i)
+
+    for i in range (0, 4):
         nbr = br + didj[i][0]
         nbc = bc + didj[i][1]
 
-        if arr[nrr][nrc] == '.':
-            backtracking(rr, rc, br, bc, n+1, i)
-
         #파란 사탕을 기준으로도 보내보자..
-        if arr[nbr][nbc] == '.':
+        if arr[nbr][nbc] == '.' or arr[nrr][nrc] == 'O':
+            ways.append(i)
             backtracking(rr, rc, br, bc, n+1, i)
+            ways.pop()
+
 
 
 
