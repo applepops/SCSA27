@@ -47,13 +47,6 @@ while True:
         print(-1)
         exit()
 
-    #1.독점계약 년수가 1씩 줄어든다.
-    for (i, j) in cur_monopoly_state.keys():
-        if cur_monopoly_state[(i, j)]:
-            cur_monopoly_state[(i, j)][1] -= 1
-            if cur_monopoly_state[(i, j)][1] == 0: #독점계약 년수가 다 닳았다면.
-                cur_monopoly_state[(i, j)].clear() #value를 빈 값으로 만든다. 어떻게 아예 지우는지는 모르겠음;;
-
     tmp_location = dict() #다 들어가고 나면 나중에 싹 넣어줄거임.
 
     # 2. 플레이어들의 이동
@@ -102,9 +95,18 @@ while True:
                 player_info[p][1] = next_location[1]
                 player_info[p][2] = next_location[2]
 
+    #1.독점계약 년수가 1씩 줄어든다. -> 자리를 옮겨보자.
+    for (i, j) in cur_monopoly_state.keys():
+        if cur_monopoly_state[(i, j)]:
+            cur_monopoly_state[(i, j)][1] -= 1
+            if cur_monopoly_state[(i, j)][1] == 0: #독점계약 년수가 다 닳았다면.
+                cur_monopoly_state[(i, j)].clear() #value를 빈 값으로 만든다. 어떻게 아예 지우는지는 모르겠음;;
+
     #3. cur_monopoly_state 갱신한다, 독점계약턴도 싹 넣어주고.
     for (ki, kj) in tmp_location.keys():
         cur_monopoly_state[(ki, kj)] = [tmp_location[(ki, kj)], K]
+
+
 
     #4. 남아있는 player들을 갱신한다. cur_player 갱신
     cur_players = list(tmp_location.values())
