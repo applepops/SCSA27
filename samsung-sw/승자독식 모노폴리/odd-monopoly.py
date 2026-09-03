@@ -49,7 +49,7 @@ while True:
 
     #1.독점계약 년수가 1씩 줄어든다.
     for (i, j) in cur_monopoly_state.keys():
-        if not cur_monopoly_state[(i, j)]:
+        if cur_monopoly_state[(i, j)]:
             cur_monopoly_state[(i, j)][1] -= 1
             if cur_monopoly_state[(i, j)][1] == 0: #독점계약 년수가 다 닳았다면.
                 cur_monopoly_state[(i, j)].clear() #value를 빈 값으로 만든다. 어떻게 아예 지우는지는 모르겠음;;
@@ -69,7 +69,7 @@ while True:
             nj = didj[d][1] + cur_j
 
             if 0 <= ni < N and 0 <= nj < N:
-                if not (ni, nj) in cur_monopoly_state.keys():
+                if not (ni, nj) in cur_monopoly_state.keys() or not cur_monopoly_state[(ni, nj)]:
                     next_location = [ni, nj, d]
                     break
 
@@ -113,3 +113,4 @@ while True:
     if len(cur_players) == 1:
         print(turn)
         exit()
+
