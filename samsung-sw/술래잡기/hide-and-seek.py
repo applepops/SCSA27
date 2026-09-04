@@ -117,7 +117,7 @@ for k in range (1, K+1):
     # print(hiding_people)
 
     #2. 술래가 움직인다. 만들어둔 달팽이 방향으로..+1만 해주면 돼.
-    sulle_idx += 1
+    sulle_idx = (sulle_idx + 1)  % len(sulle_way)
     sulle_i, sulle_j = sulle_goes_to[sulle_idx][0], sulle_goes_to[sulle_idx][1]
     sulle_cur_way = sulle_way[sulle_idx]
 
