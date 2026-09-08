@@ -134,7 +134,7 @@ for t in range(T):
 
     #3. 팩맨 이동
     #백트래킹. 상, 좌, 하, 우 순으로 순열로 3개 뽑기. -> 가장 많은 방향 3개 lst를 반환.
-    max_monster_cnt = 0
+    max_monster_cnt = -1
 
     packman_next_way = []
     tmp_lst = []
@@ -154,15 +154,13 @@ for t in range(T):
     # 해당 위치의 몬스터를 찾아야 했는데,
     # 이제는 alive_monsters[ni][nj] 자체를 비워주면 된다.
 
-    freshly_dead_monster = [[0] * 4 for _ in range (4)]
-
     for way in packman_next_way:
 
         ni = packman_i + didj[way][0]
         nj = packman_j + didj[way][1]
 
         if tmp_alive_monsters_arr[ni][nj] > 0:
-            freshly_dead_monster[ni][nj] = 2
+            dead_monsters[ni][nj] = 3
 
             # 해당 칸의 몬스터를 전부 죽임
             alive_monsters[ni][nj] = [0] * 8
@@ -180,12 +178,6 @@ for t in range(T):
         for j in range (4):
             if dead_monsters[i][j] > 0:
                 dead_monsters[i][j] -= 1
-
-    for i in range (4):
-        for j in range (4):
-            if freshly_dead_monster[i][j] == 2:
-                dead_monsters[i][j] = 2
-
 
     # print("시체들.")
     # for row in dead_monsters:
@@ -214,3 +206,4 @@ for r in range(4):
         answer += sum(alive_monsters[r][c])
 
 print(answer)
+
