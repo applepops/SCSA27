@@ -115,12 +115,14 @@ for t in range (T):
     # 몬스터의 시체를 남긴다. dead_monsters 배열에 2를 추가.
     new_alive_monsters = []
     dead_idx = []
+
+    freshly_dead_monster = [[0] * 4 for _ in range (4)]
     for way in packman_next_way:
         ni = packman_i + didj.get(way, 0)[0]
         nj = packman_j + didj.get(way, 0)[1]
 
         if tmp_alive_monsters_arr[ni][nj] > 0:
-            dead_monsters[ni][nj] = 2 #그냥 개수 상관없이 2처리만 하면 되는 거 아님? 1이랑 2짜리가 같이 있어도 2기준이겠지.
+            freshly_dead_monster[ni][nj] = 2 #그냥 개수 상관없이 2처리만 하면 되는 거 아님? 1이랑 2짜리가 같이 있어도 2기준이겠지.
 
         for i in range (len(alive_monsters)):
             if ni == alive_monsters[i][0] and nj == alive_monsters[i][1]:
@@ -143,10 +145,14 @@ for t in range (T):
     #4. 몬스터 시체 소멸
     for i in range (4):
         for j in range (4):
-            if dead_monsters[i][j] == 2:
-                continue
-            elif dead_monsters[i][j] > 0:
+            if dead_monsters[i][j] > 0:
                 dead_monsters[i][j] -= 1
+
+    for i in range (4):
+        for j in range (4):
+            if freshly_dead_monster[i][j] == 2:
+                dead_monsters[i][j] = 2
+
 
     # print("시체들.")
     # for row in dead_monsters:
