@@ -63,6 +63,7 @@ while True:
     #0.2 횟수 += 1
     turn += 1
 
+
     #1. 밀가루 양이 가장 작은 위치에 밀가루를 1만큼 더 넣는다. (모든 가장 작은 위치에 다)
     for i in range (len(arr)):
         if arr[i] == min_milraru:
@@ -87,7 +88,8 @@ while True:
         c = len(arr[0])
         tmp_lst = [] #비워주기
 
-        if len(arr) > len(arr[-1])-2:
+        #다음에 올라갈 놈이고.. / 그 옆은
+        if len(arr) > len(arr[-1])-(len(arr)-1):
             break
 
 
