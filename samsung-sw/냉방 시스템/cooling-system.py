@@ -30,7 +30,7 @@ def go_cold_air(si, sj, dir):
         cold_airs[ci][cj] += c_air_amount #꺼내면서 값 더해준다.
 
         if c_air_amount == 1: #더 갈 필요도 없다.
-            break
+            continue
 
         if dir == 2: #왼쪽으로 퍼지기
             #왼위
@@ -187,6 +187,10 @@ while True:
         elif d == 5: #아래
             ni, nj = i+1, j
             go_cold_air(ni, nj, d)
+
+    # print(f"{turn}회차입니다.... 에휴.")
+    # for row in cold_airs:
+    #     print(*row)
 
     #2. 시원한 공기들이 섞인다.
     mix_cold_air()
