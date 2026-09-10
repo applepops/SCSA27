@@ -115,33 +115,33 @@ for i in range (1, M+1):
 #이제 다시 집어 넣는다.. 이게 뭔짓이지? 으엥
 put_people_back()
 
-
 for k in range (0, K+1): #1-based
     #이제 기본 세팅은 다 끝났고.. 라운드 반복하자.
+
     #K번 반복되는 라운드....
     #[1] 각 사람은 머리사람을 따라서 한 칸 이동한다.
     for i in range (1, M+1):
         if groups_are_heading_to[i] == False: #오른쪽으로 가고 있는 애들이면..
             tmp = people_by_group[i].pop(-1)
             people_by_group[i].insert(0, tmp)
-        else:
+        else: #왼쪽으로 가는 애들이면..
             tmp = people_by_group[i].pop(0)
             people_by_group[i].append(tmp)
 
-        put_people_back()
+    put_people_back()
 
     did_we_visit_this_group = [0] * (M+1) #매라운드마다 새롭게 초기화를 시켜야 하는 놈.
 
     #[2] 현재 k가 무엇인지에 따라서 공을 처 받을 것이다.
 
     tmp_k = k % (4*N) #4N번 넘어가는 미친 놈을 위해 tmp_k를 만들자.
-    # print(f"나의 지금 라운드 {tmp_k}")
 
     if 0 <= tmp_k <= N-1: #위에서 아래로 내려가는 row
         for j in range (0, N):
             if did_we_visit_this_group[groups[tmp_k][j]] == 0 and arr[tmp_k][j] >= 1:
                 did_we_visit_this_group[groups[tmp_k][j]] = 1 #이제 못 가게 해야지
                 total_score += (arr[tmp_k][j] * arr[tmp_k][j])
+                break
 
     elif N <= tmp_k <= 2*N-1: #왼쪽에서 오른쪽으로 가는 col
         tmp_k -= N
@@ -149,6 +149,7 @@ for k in range (0, K+1): #1-based
             if did_we_visit_this_group[groups[i][tmp_k]] == 0 and arr[i][tmp_k] >= 1:
                 did_we_visit_this_group[groups[i][tmp_k]] = 1 #이제 못 가게 해야지
                 total_score += (arr[i][tmp_k] * arr[i][tmp_k])
+                break
 
     elif 2*N <= tmp_k <= 3*N-1: #아래에서 위로 가는 row
         tmp_k -= 2*N
@@ -157,6 +158,7 @@ for k in range (0, K+1): #1-based
             if did_we_visit_this_group[groups[tmp_k][j]] == 0 and arr[tmp_k][j] >= 1:
                 did_we_visit_this_group[groups[tmp_k][j]] = 1 #이제 못 가게 해야지
                 total_score += (arr[tmp_k][j] * arr[tmp_k][j])
+                break
 
     elif 3*N <= tmp_k <= 4*N-1: #오른쪽에서 왼쪽으로 가는 col
         tmp_k -= 3*N
@@ -165,8 +167,9 @@ for k in range (0, K+1): #1-based
             if did_we_visit_this_group[groups[i][tmp_k]] == 0 and arr[i][tmp_k] >= 1:
                 did_we_visit_this_group[groups[i][tmp_k]] = 1 #이제 못 가게 해야지
                 total_score += (arr[i][tmp_k] * arr[i][tmp_k])
+                break
 
-    #[3] 획득한 그룹은 방향을 바꿔야됨.
+    #[3] 공을 획득한 그룹은 방향을 바꿔야됨.
     for g in range (1, len(did_we_visit_this_group)):
         if did_we_visit_this_group[g] == 1:
 
@@ -185,4 +188,8 @@ for k in range (0, K+1): #1-based
                     people_by_group[g][people] -= (ccnt +1)
                     people_by_group[g][people] *= -1
 
+    put_people_back()
+
+    # print(f"{k+1}라운드 끝났어..")
+    # custom_print(arr)
 print(total_score)
