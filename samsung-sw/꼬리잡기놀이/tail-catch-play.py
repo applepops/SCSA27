@@ -58,25 +58,27 @@ for i in range (N):
 
 groups_are_heading_to = [False] * (M+1) #False가 오른쪽이고 True가 왼쪽임.
 
+
 #사람들 번호를 이쁘게 다시 맥여주자.
-for i in range (1, M+1):
+for i in range (1, M+1):#딱 보니 여기가 잘못됐다. 에효에효에효
 
     #방향을 알아보자...
     flag = False
 
+    gijun = 0
+
     #왼쪽으로 가는 사람들인지 알아보자
-    for p in range(1, len(people_by_group[i])):
+    for p in range(0, len(people_by_group[i])):
+        if people_by_group[i][p] == 1:
+            gijun = p
 
-        if people_by_group[i][p] == -1 or people_by_group[i][p-1] == -1:
-            continue
-
-        if people_by_group[i][p] > people_by_group[i][p-1]:
-            continue
-        else:
-            break
-    else:
+    #이게 왼쪽으로 가는 거지.
+    if people_by_group[i][(gijun + 1) % len(people_by_group[i])] == 2:
         flag = True #왼쪽으로 간다는 뜻임.
         groups_are_heading_to[i] = True
+
+    #이게 아니면 걍 오른쪽인 거지. 오른쪽이 디폴트.
+
 
     if flag: #왼쪽으로 가는 사람들
         for p in range(0, len(people_by_group[i])):
@@ -114,6 +116,7 @@ for i in range (1, M+1):
 
 #이제 다시 집어 넣는다.. 이게 뭔짓이지? 으엥
 put_people_back()
+
 
 for k in range (0, K+1): #1-based
     #이제 기본 세팅은 다 끝났고.. 라운드 반복하자.
