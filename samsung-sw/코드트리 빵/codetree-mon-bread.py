@@ -94,6 +94,10 @@ didj = [[-1, 0], [0, -1], [0, 1], [1, 0]] #위 왼 오 아래 순으로 우선�
 
 while True:
     t += 1
+
+    # print(f"{t}회차, 사람은 지금 여기 있다.")
+    # print(people_ijs)
+
     #매턴마다 생기는 애. 못 지나가는 좌표들을 임시 저장하고 마지막에 싹 저장.
     tmp_cant_go_lst = []
 
@@ -122,7 +126,11 @@ while True:
             #    그 사람도 도착했다고 표시해주기
             if (people_ijs[i][0], people_ijs[i][1]) == (gs25_ijs[i][0], gs25_ijs[i][1]):
                 did_people_arrive[i] = True
+                tmp_cant_go_lst.append([gs25_ijs[i][0], gs25_ijs[i][1]]) #[주의] 또 빼먹었다. 미친놈.
 
+    #[4] 못 지나가는 칸 추가해주기 #여기에도 넣어보자. 순서가 어케되는건지 헷갈린다.
+    for i, j in tmp_cant_go_lst:
+        cant_go_arr[i][j] = 1
 
     #[3] t번 사람이 원하는 편의점에 가까운 베이스 캠프 찾기
     #    그 사람 위치 갱신해주기
@@ -133,14 +141,18 @@ while True:
 
         tmp_cant_go_lst.append([new_i, new_j])
 
+    # print("도착여부")
+    # print(did_people_arrive)
+
     #[4] 못 지나가는 칸 추가해주기
     for i, j in tmp_cant_go_lst:
         cant_go_arr[i][j] = 1
-
+    #
+    # for row in cant_go_arr:
+    #     print(*row)
 
     #[5] 다들 도착했는지 확인 한 번 해주고 다 도착했으면 while문 끝내기
     #    다들 아직 안 도착했으면 계속 돌기
-
     flag = 0
     for p in range (1, M+1):
         if did_people_arrive[p] == False:
