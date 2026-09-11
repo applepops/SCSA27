@@ -107,7 +107,7 @@ while True:
         if did_people_arrive[i] == False and (people_ijs[i][0], people_ijs[i][1]) != (-1, -1): #아직 도착 안한 사람이면 한 번 가야지, 아직 베캠 안 간 사람이면 pass
             distances = []
             for d in range (4):#내 위치에서 한 칸 이동한 거랑 편의점 위치를 보낸다.
-                if 0 <= people_ijs[i][0] + didj[d][0] < N and 0 <= people_ijs[i][1] + didj[d][1] < N:
+                if 0 <= people_ijs[i][0] + didj[d][0] < N and 0 <= people_ijs[i][1] + didj[d][1] < N and cant_go_arr[people_ijs[i][0] + didj[d][0]][people_ijs[i][1] + didj[d][1]] == 0: #[주의]: 또 빼먹음 미친놈.
                     res = go_gs25(people_ijs[i][0] + didj[d][0], people_ijs[i][1] + didj[d][1], gs25_ijs[i][0], gs25_ijs[i][1])
                     distances.append(res)
                 else:
