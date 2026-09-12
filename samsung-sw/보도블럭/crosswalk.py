@@ -1,95 +1,121 @@
-#'지나갈 수 있는 행과 열'의 개수 구하기
-#경사로를 두지 않은 경우에도 지나갈 수 있을 수 있음.
+'''
+문제이해 및 구상 (20분)
+구현
+디버깅
+검증
 
-def check_way (n_arr):
-    for i in range (1, len(n_arr)):
-        d = abs(n_arr[i-1] - n_arr[i])
-        #두 값이 같으면 지나간다.
-        if d == 0:
-            continue
-        #1 차이가 나면 작은 애의 stairs를 확인한다.
-        elif d == 1:
-            if n_arr[i-1] < n_arr[i]:
-                if stairs[i-1] == 1:
-                    continue
-                else:
-                    return False
+'''
+
+#파이팅
+#묘수 금지
+
+#입력으로 한 줄을 받을게, 그리고 몇 번째 줄인지. 왜냐면 표시해야 됨.
+def put_stairs(lst, i, which_arr):
+    for j in range (N-L+1):
+        is_same = True
+        is_already = False
+        front = False
+        back = False
+        is_gap_okay = True
+
+        for jj in range (j, j+L-1):
+            if lst[jj] != lst[jj+1]: #L동안의 값이 다 같냐?
+                is_same = False
+                break
+            if which_arr == 0: #이미 보도블럭을 설치한 곳 아냐?
+                if stairs_row_arr[i][jj] == 1:
+                    is_already = True
+                    break
             else:
-                if stairs[i] == 1:
-                    continue
-                else:
-                    return False
-        #두 값 차이가 2 이상이면 걍 안되는 놈이다.
+                if stairs_col_arr[i][jj] == 1:
+                    is_already = True
+                    break
+
+        #앞 혹은 뒤 딱 하나만 1차이가 나?
+        if 0 <= j-1 < N and lst[j-1] == lst[j]+1:
+            front = True
+        if 0 <= j+L < N and lst[j+L] == lst[j]+1:
+            back = True
+        if front and back:
+            is_gap_okay = False
+        elif not front and not back:
+            is_gap_okay = False
         else:
-            return False
-    else:
-        return True
+            is_gap_okay = True
+
+        #인제 진짜로 경사로 올릴게.
+        if is_gap_okay and not is_already and is_same:
+            for jj in range(j, j + L):
+                if which_arr == 0:
+                    stairs_row_arr[i][jj] = 1
+                else:
+                    stairs_col_arr[i][jj] = 1
+
+
+
+
+
+
 
 
 N, L = map(int, input().split())
 arr = [list(map(int, input().split())) for _ in range (N)]
-#행이랑 열을 그냥 모두 new_arr에 넣어줄거임.
-new_arr = []
-for row in arr:
-    new_arr.append(row)
 
-for row in list(zip(*arr)):
-    new_arr.append(list(row))
+#기초공사
+row_arr = arr
+col_arr = [list(row) for row in zip(*arr[::-1])]
 
+cnt = 0
 
-ans = 0
+#경사로를 올렸는지 확인하는 용도의 배열. 0이면 없고 1이면 있고.
+stairs_row_arr = [[0]*N for _ in range (N)]
+stairs_col_arr = [[0]*N for _ in range (N)]
 
-for mini_new_arr in new_arr:
+#[1] 경사로 설치하기
 
-    stairs = [0] * N
+for r in range(len(row_arr)):
+    put_stairs(row_arr[r], r, 0)
 
-    if check_way(mini_new_arr):
-        ans += 1
-        continue
+# for row in stairs_row_arr:
+#     print(*row)
 
-    #L개씩 앞에서부터 싹 돈다.
-    for i in range (N-L+1):
-        tmp = mini_new_arr[i:i+L]
+for r in range (len(col_arr)):
+    put_stairs(col_arr[r], r, 1)
+# 
+# print()
+#
+# for row in stairs_col_arr:
+#     print(*row)
 
-        #고른 L개가 다 같은 애들인지 확인하자
-        for t in range (0, L-1):
-            if tmp[t] != tmp[t+1]:
-                break
-            else:
-                continue
-        #다 같은 애들임이 판별났다.
+#[2] 지나갈 수 있는 곳인지 확인하기
+for r in range (len(row_arr)):
+    for i in range (N-1):
+        if row_arr[r][i] == row_arr[r][i+1]:
+            continue
+        elif row_arr[r][i] == row_arr[r][i+1] + 1 and stairs_row_arr[r][i+1] == 1:
+            continue
+        elif row_arr[r][i] + 1 == row_arr[r][i+1] and stairs_row_arr[r][i] == 1:
+            continue
         else:
+            break
+    else:
+        cnt += 1
 
-            put_stairs_front = False
-            put_stairs_back = False
+for r in range (len(col_arr)):
+    for i in range (N-1):
+        if col_arr[r][i] == col_arr[r][i+1]:
+            continue
+        elif col_arr[r][i] == col_arr[r][i+1] + 1 and stairs_col_arr[r][i+1] == 1:
+            continue
+        elif col_arr[r][i] + 1 == col_arr[r][i+1] and stairs_col_arr[r][i] == 1:
+            continue
+        else:
+            break
+    else:
+        cnt += 1
 
-            if 0 <= i-1 < N:
-                if mini_new_arr[i-1] == tmp[0]+1:
-                    put_stairs_front = True
-
-            if 0 <= i+L < N:
-                if mini_new_arr[i+L] == tmp[0]+1:
-                    put_stairs_back = True
-
-            #앞에도 뒤에도 다 큰 놈이 있어서 계단을 넣을 수 없다
-            if put_stairs_front and put_stairs_back:
-                continue
-            #앞에도 뒤에도 다 큰 놈이 없다
-            elif not put_stairs_front and not put_stairs_back:
-                continue
-            else:
-                for plus in range (i, i+L):
-                    #계단이 이미 있다 미친놈아 나가라
-                    if stairs[plus] == 1:
-                        break
-                    else:
-                        stairs[plus] = 1
-
-    if check_way(mini_new_arr):
-        # print("나는 체크되었다.")
-        # print(stairs)
-        # print(mini_new_arr)
-        ans += 1
+print(cnt)
 
 
-print(ans)
+
+
