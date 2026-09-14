@@ -55,6 +55,9 @@ def backtracking(n, ci, cj, vi, vj, visited_):
             lst_hubo.append(lst[:])
         return
 
+    if lst_hubo:
+        return
+
     for di, dj in ((0, 1), (1, 0), (0, -1), (-1, 0)):
         ni = di + ci
         nj = dj + cj
