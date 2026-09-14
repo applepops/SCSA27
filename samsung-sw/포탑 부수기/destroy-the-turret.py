@@ -33,7 +33,7 @@ def pick_victim(ai, aj):
     #0을 제외한 가장 큰 공격력 찾기
     for i in range (N):
         for j in range (M):
-            if arr[i][j] != 0 and arr[i][j] > max_power:
+            if arr[i][j] != 0 and arr[i][j] > max_power and (i, j) != (ai, aj):
                 max_power = arr[i][j]
 
     #후보에 넣기
@@ -180,7 +180,7 @@ for k in range (1, K+1):
     # print(attacker_i, attacker_j)
     #[1.1] 공격과 관련되었는지 처리해주기
     related_to_attack_arr[attacker_i][attacker_j] = True
-    #[1.2] 공격자 공격 power 계산
+    #[1.2] 공격자 공격 power 계산 [실수]: 피공격자 고르고 계산했어야 했다.
     attacker_power = arr[attacker_i][attacker_j] + N + M
     #[1.3] 공격자 파워 갱신
     arr[attacker_i][attacker_j] = attacker_power
