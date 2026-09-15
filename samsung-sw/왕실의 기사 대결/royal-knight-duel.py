@@ -22,63 +22,25 @@ def find_moving_knights(snum, d):
         if d == 0:
             di, dj = -1, 0
 
-            ni = di + ci
-            nj = dj + cj
-
-            if 0 <= ni < L and 0 <= nj < L and visited[ni][nj] == 0 and knights[ni][nj] >= 0:
-                m_knights.add(knights[ni][nj])
-
-                for i in range(knights_info[knights[ni][nj]][0], knights_info[knights[ni][nj]][0] + knights_info[knights[ni][nj]][2]):
-                    for j in range(knights_info[knights[ni][nj]][1], knights_info[knights[ni][nj]][1] + knights_info[knights[ni][nj]][3]):
-                        q.append([i, j])
-                        visited[i][j] = 1
-
         elif d == 1:
             di, dj = 0, 1
 
-            ni = di + ci
-            nj = dj + cj
-
-            if 0 <= ni < L and 0 <= nj < L and visited[ni][nj] == 0 and knights[ni][nj] >= 0:
-                m_knights.add(knights[ni][nj])
-
-                for i in range(knights_info[knights[ni][nj]][0], knights_info[knights[ni][nj]][0] + knights_info[knights[ni][nj]][2]):
-                    for j in range(knights_info[knights[ni][nj]][1], knights_info[knights[ni][nj]][1] + knights_info[knights[ni][nj]][3]):
-                        q.append([i, j])
-                        visited[i][j] = 1
-
-        elif d== 2:
+        elif d == 2:
             di, dj = 1, 0
 
-            ni = di + ci
-            nj = dj + cj
-
-            if 0 <= ni < L and 0 <= nj < L and visited[ni][nj] == 0 and knights[ni][nj] >= 0:
-                m_knights.add(knights[ni][nj])
-
-                for i in range(knights_info[knights[ni][nj]][0],
-                               knights_info[knights[ni][nj]][0] + knights_info[knights[ni][nj]][2]):
-                    for j in range(knights_info[knights[ni][nj]][1],
-                                   knights_info[knights[ni][nj]][1] + knights_info[knights[ni][nj]][3]):
-                        q.append([i, j])
-                        visited[i][j] = 1
-
-        elif d==3:
-
+        elif d == 3:
             di, dj = 0, -1
 
-            ni = di + ci
-            nj = dj + cj
+        ni = di + ci
+        nj = dj + cj
 
-            if 0 <= ni < L and 0 <= nj < L and visited[ni][nj] == 0 and knights[ni][nj] >= 0:
-                m_knights.add(knights[ni][nj])
+        if 0 <= ni < L and 0 <= nj < L and visited[ni][nj] == 0 and knights[ni][nj] >= 0:
+            m_knights.add(knights[ni][nj])
 
-                for i in range(knights_info[knights[ni][nj]][0],
-                               knights_info[knights[ni][nj]][0] + knights_info[knights[ni][nj]][2]):
-                    for j in range(knights_info[knights[ni][nj]][1],
-                                   knights_info[knights[ni][nj]][1] + knights_info[knights[ni][nj]][3]):
-                        q.append([i, j])
-                        visited[i][j] = 1
+            for i in range(knights_info[knights[ni][nj]][0], knights_info[knights[ni][nj]][0] + knights_info[knights[ni][nj]][2]):
+                for j in range(knights_info[knights[ni][nj]][1], knights_info[knights[ni][nj]][1] + knights_info[knights[ni][nj]][3]):
+                    q.append([i, j])
+                    visited[i][j] = 1
 
     return m_knights
 
@@ -137,32 +99,23 @@ dead_knights = [False] * N
 hurts_knights = [0] * N
 
 put_knights_in_arr()
-# print_knights()
 
 #왕이 내린 명령만큼 돈다..
 for q in range (Q):
-    # print()
-    # print(f"{q+1}번째 명령")
+
     knight_num, way = map(int, input().split())
     knight_num -= 1
-    # print(f"{knight_num}번 기사는 {way}로 가라")
 
-    # print("이동 전")
     put_knights_in_arr()
-    # print_knights()
 
     #[1] 이미 사라진 기사를 움직이려고 하는가?
     if dead_knights[knight_num]:
-        # print("이미 사라진 기사: False")
         continue
     else:
         #아직 남아있는 기사다.
 
         #[3] 움직임의 대상이 되는 기사들을 알아오자.
         moving_knights = find_moving_knights(knight_num, way)
-
-        # print("움직이는 애들")
-        # print(moving_knights)
 
         #[4] 이번 이동이 가능한지 check한다.
         if can_we_move(moving_knights, way):
@@ -193,19 +146,12 @@ for q in range (Q):
                             # [6.1] 사라진 기사인지도 확인해서 업데이트해준다.
                             if knights_info[m][4] <= 0:
                                 dead_knights[m] = True #정보 업데이트, 죽었다.
-            # print(hurts_knights)
-            # print(dead_knights)
 
-            # print("이동 후")
             put_knights_in_arr()
-            # print_knights()
 
         else: #이동이 불가능하다. 그냥 넘어간다.
-            # print("이동불가: False")
             continue
 
-# print("결국")
-# print_knights()
 
 #[7] 생존한 기사들의 데미지를 더하자.
 ans = 0
