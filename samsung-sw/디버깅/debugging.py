@@ -26,6 +26,9 @@ def backtracking(n, kigun_n):
                 is_fixed = False
 
         if is_fixed:
+            # print()
+            # for row in arr:
+            #     print(*row)
             print(kigun_n)
             exit()
 
@@ -40,6 +43,9 @@ def backtracking(n, kigun_n):
                 arr[i][j] = 0
 
 def call_backtracking():
+
+    backtracking(0, 0)
+
     backtracking(0, 1)
 
     backtracking(0, 2)
@@ -59,7 +65,9 @@ for _ in range (M):
 
     arr[a][b] = 1
 
+
 if M == 0:
     print(0)
 else:
     call_backtracking()
+
