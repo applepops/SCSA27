@@ -59,4 +59,7 @@ for _ in range (M):
 
     arr[a][b] = 1
 
-call_backtracking()
+if M == 0:
+    print(0)
+else:
+    call_backtracking()
