@@ -31,8 +31,11 @@ def bfs (si, sj):
             if 0 <= ni < N and 0 <= nj < N and visited[ni][nj] == 0 and arr[ni][nj] <= cur_level:
                 q.append([ni, nj, cd +1])
                 visited[ni][nj] = 1
-                
+
+    # print(hubo)
+
     if hubo:
+        hubo = sorted(hubo, key=lambda x: (x[0], x[1], x[2]))
         arr[hubo[0][1]][hubo[0][2]] = 0
         total_distance += hubo[0][0]
         return hubo[0][1], hubo[0][2]
@@ -57,6 +60,7 @@ cur_level = 2
 while True:
 
     robot_i, robot_j = bfs(robot_i, robot_j)
+    # print(robot_i, robot_j)
 
     if (robot_i, robot_j) != (-1, -1):
         killed_monster_cnt += 1
