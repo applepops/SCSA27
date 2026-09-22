@@ -35,13 +35,12 @@ R, C, K = map(int, input().split())
 arr = [list(map(int, input().split())) for _ in range (3)]
 time = 0
 
-if 0 <= R - 1 < len(arr) and 0 <= C - 1 < len(arr[0]):
-    if arr[R - 1][C - 1] == K:
-        print(time)
-        exit()
-
-
 while True:
+    
+    if 0 <= R-1 < len(arr) and 0 <= C-1 < len(arr[0]):
+        if arr[R-1][C-1] == K:
+            break
+    
     time += 1
 
     if time > 100:
@@ -64,8 +63,5 @@ while True:
         fill_zero()
         arr = [list(row) for row in zip(*arr[::-1])]
 
-    if 0 <= R-1 < len(arr) and 0 <= C-1 < len(arr[0]):
-        if arr[R-1][C-1] == K:
-            break
 
 print(time)
