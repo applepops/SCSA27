@@ -1,135 +1,65 @@
-#열의 개수 구하기
-def find_max_c():
-    max_c = -1
-    for i in range (100):
-        for j in range (100):
-            if arr[i][j] == 0:
-                temp = j - 1
-                max_c = max(max_c, temp)
-                break
-        else:
-            max_c = max(max_c, 100)
-            return max_c
-    return max_c + 1
+def do_sort():
+    global arr
 
-#행의 개수 구하기
-def find_max_r():
-    max_r = -1
-    for j in range(100):
-        for i in range(100):
-            if arr[i][j] == 0:
-                temp = i - 1
-                max_r = max(max_r, temp)
-                break
-        else:
-            max_r = max(max_r, 100)
-            return max_r
-    return max_r + 1
+    for i in range (len(arr)):
+        lst = [0] * 101
+        for j in range (len(arr[i])):
+            if arr[i][j] != 0: #0은 무시
+                lst[arr[i][j]] += 1
+        tmp = []
+        for n in range (1, len(lst)):
+            if lst[n]:
+                tmp.append([n, lst[n]])
 
-def print_arr(cur_r, cur_c):
-    for i in range (cur_r):
-        for j in range (cur_c):
-            print(arr[i][j], end=" ")
-        print()
+        tmp = sorted(tmp, key=lambda x: (x[1], x[0]))
+        tmp = [n for row in tmp for n in row]
+        arr[i] = tmp
 
-ans_r, ans_c, ans_k = map(int, input().split())
-ans_r -= 1
-ans_c -= 1
+def fill_zero():
 
-#그냥 100*100으로 선언하자..
-arr = [[0] * 100 for _ in range (100)]
+    global arr
 
-#초기 3*3 넣어주기
-for i in range (3):
-    temp_arr = list(map(int, input().split()))
-    arr[i][0:3] = temp_arr
+    max_col = 0
+    for i in range (len(arr)):
+        max_col = max(max_col, len(arr[i]))
 
-cur_time = 0
+    new_arr = [[0] * max_col for _ in range (len(arr))]
+
+    for i in range (len(arr)):
+        for j in range (len(arr[i])):
+            new_arr[i][j] = arr[i][j]
+
+    arr = new_arr
+
+R, C, K = map(int, input().split())
+arr = [list(map(int, input().split())) for _ in range (3)]
+time = 0
 
 while True:
+    time += 1
 
-    #엣지케이스: 게임을 진행하지 않아도 이미 답이 나온 경우
-    if arr[ans_r][ans_c] == ans_k:
-        print(cur_time)
+    if time > 100:
+        time = -1
         break
 
-    cur_time += 1
+    #행의 개수랑 열의 개수 비교
+    row_cnt = len(arr)
+    col_cnt = len(arr[0])
 
-    cur_r = find_max_r()
-    cur_c = find_max_c()
-    max_cur = max(cur_r, cur_c)
+    #행에 대한 정렬
+    if row_cnt >= col_cnt:
+        do_sort()
+        fill_zero()
 
-    #행의 개수가 열의 개수보다 크거나 같은 경우
-    if cur_r >= cur_c:
-        #i는 처리해줄 이번 행이다.
-        for i in range (cur_r):
-            cur_r_dict = dict()
-            for j in range (cur_c):
-                if arr[i][j] == 0:
-                    continue
-                else:
-                    if arr[i][j] in cur_r_dict.keys():
-                        cur_r_dict[arr[i][j]] += 1
-                    else:
-                        cur_r_dict[arr[i][j]] = 1
-            temp_lst = []
-            for key, cnt in cur_r_dict.items():
-                #출현 빈도 수, 해당 숫자
-                temp_lst.append((cnt, key))
-                temp_lst = sorted(temp_lst, key=lambda x: (x[0], x[1]))
-
-            #다시 배열에 넣어주기
-            temp_j = 0
-            for c, n in temp_lst:
-                if temp_j + 1 < 100:
-                    arr[i][temp_j] = n
-                    arr[i][temp_j+1] = c
-                temp_j += 2
-
-            if len(temp_lst)*2-1 < max_cur:
-                for tmp in range (len(temp_lst)*2, max_cur+1):
-                    arr[i][tmp] = 0
-
-
-    #열의 개수가 행의 개수보다 큰 경우
+    #열에 대한 정렬
     else:
-        # j는 처리해줄 이번 열이다.
-        for j in range(cur_c):
-            cur_c_dict = dict()
+        arr = [list(row) for row in zip(*arr)][::-1]
+        do_sort()
+        fill_zero()
+        arr = [list(row) for row in zip(*arr[::-1])]
 
-            for i in range(cur_r):
-                if arr[i][j] == 0:
-                    continue
-                else:
-                    if arr[i][j] in cur_c_dict.keys():
-                        cur_c_dict[arr[i][j]] += 1
-                    else:
-                        cur_c_dict[arr[i][j]] = 1
+    if 0 <= R-1 < len(arr) and 0 <= C-1 < len(arr[0]):
+        if arr[R-1][C-1] == K:
+            break
 
-            temp_lst = []
-            for key, cnt in cur_c_dict.items():
-                # 출현 빈도 수, 해당 숫자
-                temp_lst.append((cnt, key))
-                temp_lst = sorted(temp_lst, key=lambda x: (x[0], x[1]))
-
-            # 다시 배열에 넣어주기
-            temp_i = 0
-            for c, n in temp_lst:
-                if temp_i + 1 < 100:
-                    arr[temp_i][j] = n
-                    arr[temp_i + 1][j] = c
-                temp_i += 2
-
-
-            if len(temp_lst) * 2 - 1 < max_cur:
-                for tmp in range(len(temp_lst) * 2, max_cur + 1):
-                    arr[tmp][j] = 0
-
-
-    if arr[ans_r][ans_c] == ans_k:
-        print(cur_time)
-        break
-
-    if cur_time > 100:
-        print(-1)
-        break
+print(time)
