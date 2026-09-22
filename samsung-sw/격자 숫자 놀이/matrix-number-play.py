@@ -38,33 +38,34 @@ time = 0
 if 0 <= R - 1 < len(arr) and 0 <= C - 1 < len(arr[0]):
     if arr[R - 1][C - 1] == K:
         print(time)
+        exit()
 
-else:
-    while True:
-        time += 1
 
-        if time > 100:
-            time = -1
+while True:
+    time += 1
+
+    if time > 100:
+        time = -1
+        break
+
+    #행의 개수랑 열의 개수 비교
+    row_cnt = len(arr)
+    col_cnt = len(arr[0])
+
+    #행에 대한 정렬
+    if row_cnt >= col_cnt:
+        do_sort()
+        fill_zero()
+
+    #열에 대한 정렬
+    else:
+        arr = [list(row) for row in zip(*arr)][::-1]
+        do_sort()
+        fill_zero()
+        arr = [list(row) for row in zip(*arr[::-1])]
+
+    if 0 <= R-1 < len(arr) and 0 <= C-1 < len(arr[0]):
+        if arr[R-1][C-1] == K:
             break
 
-        #행의 개수랑 열의 개수 비교
-        row_cnt = len(arr)
-        col_cnt = len(arr[0])
-
-        #행에 대한 정렬
-        if row_cnt >= col_cnt:
-            do_sort()
-            fill_zero()
-
-        #열에 대한 정렬
-        else:
-            arr = [list(row) for row in zip(*arr)][::-1]
-            do_sort()
-            fill_zero()
-            arr = [list(row) for row in zip(*arr[::-1])]
-
-        if 0 <= R-1 < len(arr) and 0 <= C-1 < len(arr[0]):
-            if arr[R-1][C-1] == K:
-                break
-
-    print(time)
+print(time)
