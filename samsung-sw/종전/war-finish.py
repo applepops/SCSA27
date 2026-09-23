@@ -44,7 +44,7 @@ def backtracking(si, sj, ci, cj, c_dir, cnt, total_cnt):
 
        global min_gap
 
-       if cnt > 4:
+       if cnt >= 4:
               return
 
        #성공 조건
