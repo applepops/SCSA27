@@ -1,126 +1,113 @@
 from collections import deque
 
-def print_cur_arr(my_arr):
-    for row in my_arr:
-        print(*row)
+def get_start_ijs(level):
+    ijs = []
 
-def bfs(si, sj):
-    global max_iceberg
+    for i in range (0, 2**N, 2**level):
+        for j in range (0, 2**N, 2**level):
+            ijs.append([i, j])
 
-    tmp_iceberg = 0
+    return ijs
 
+def rotate(level, si, sj):
+
+    #얘네가 진짜 돌리는 좌측 상단 지점들.
+    new_ij = []
+    for i in range (si, si + 2**level, 2**(level-1)):
+        for j in range(sj, sj + 2 ** level, 2 ** (level - 1)):
+            new_ij.append([i, j])
+
+    tmp_arr1 = [row[new_ij[0][1]:new_ij[0][1]+2 ** (level - 1)] for row in arr[new_ij[0][0]:new_ij[0][0]+2 ** (level - 1)]]
+    tmp_arr2 = [row[new_ij[1][1]:new_ij[1][1] + 2 ** (level - 1)] for row in arr[new_ij[1][0]:new_ij[1][0] + 2 ** (level - 1)]]
+    tmp_arr3 = [row[new_ij[2][1]:new_ij[2][1] + 2 ** (level - 1)] for row in
+                arr[new_ij[2][0]:new_ij[2][0] + 2 ** (level - 1)]]
+    tmp_arr4 = [row[new_ij[3][1]:new_ij[3][1] + 2 ** (level - 1)] for row in
+                arr[new_ij[3][0]:new_ij[3][0] + 2 ** (level - 1)]]
+
+    tmp_tmp = [row[:] for row in tmp_arr2[:]]
+    tmp_arr2 = [row[:] for row in tmp_arr1[:]]
+    tmp_arr1 = [row[:] for row in tmp_arr3[:]]
+    tmp_arr3 = [row[:] for row in tmp_arr4[:]]
+    tmp_arr4 = tmp_tmp
+
+    for i in range (new_ij[0][0], new_ij[0][0]+2 ** (level - 1)):
+        for j in range (new_ij[0][1], new_ij[0][1]+2 ** (level - 1)):
+            arr[i][j] = tmp_arr1[i-new_ij[0][0]][j-new_ij[0][1]]
+
+    for i in range (new_ij[1][0], new_ij[1][0]+2 ** (level - 1)):
+        for j in range (new_ij[1][1], new_ij[1][1]+2 ** (level - 1)):
+            arr[i][j] = tmp_arr2[i-new_ij[1][0]][j-new_ij[1][1]]
+
+    for i in range (new_ij[2][0], new_ij[2][0]+2 ** (level - 1)):
+        for j in range (new_ij[2][1], new_ij[2][1]+2 ** (level - 1)):
+            arr[i][j] = tmp_arr3[i-new_ij[2][0]][j-new_ij[2][1]]
+
+    for i in range (new_ij[3][0], new_ij[3][0]+2 ** (level - 1)):
+        for j in range (new_ij[3][1], new_ij[3][1]+2 ** (level - 1)):
+            arr[i][j] = tmp_arr4[i-new_ij[3][0]][j-new_ij[3][1]]
+
+
+
+def bfs(i, j):
     q = deque()
-    q.append((si, sj))
-
-    visited[si][sj] = 1
+    q.append([i, j])
+    ice_cnt = 0
 
     while q:
         ci, cj = q.popleft()
-        tmp_iceberg += 1
+        ice_cnt += 1
+        for di, dj in ((-1, 0), (1, 0), (0, 1), (0, -1)):
+            ni = ci + di
+            nj = cj + dj
 
-        for di, dj in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-            ni = di + ci
-            nj = dj + cj
+            if 0 <= ni < 2**N and 0 <= nj < 2**N and arr[ni][nj] != 0 and visited[ni][nj] == 0:
+                q.append([ni, nj])
+                visited[ni][nj] = 1
 
-            if 0 <= ni < 2 ** N and 0 <= nj < 2 ** N:
-                if visited[ni][nj] == 0 and arr[ni][nj] != 0:
-                    q.append((ni, nj))
-                    visited[ni][nj] = 1
-
-    max_iceberg = max(max_iceberg, tmp_iceberg)
+    return ice_cnt
 
 
-#level에 맞게 작은 배열로 쪼개는 함수
-def rotate_by_level(ci, cj, cur_level):
+N, Q = map(int, input().split())
 
-    #원본 배열 copy
-    tmp_arr = [row[:] for row in arr]
+arr = [list(map(int, input().split())) for _ in range (2**N)]
+level_lst = list(map(int, input().split()))
 
-    temp_lst = []
+for cur_level in level_lst:
+    if cur_level != 0:
+        start_ijs = get_start_ijs(cur_level)
+        for i, j in start_ijs:
+            rotate(cur_level, i, j)
 
-    for i in range (ci, ci+2**cur_level, 2**(cur_level-1)):
-        for j in range (cj, cj+2**cur_level,  2**(cur_level-1)):
-            #단위 안에 있는 작은 회전해야 하는 애들이 시작하는 꼭짓점
-            temp_lst.append([i, j])
-
-    for i in range (len(temp_lst)):
-        mini_arr = [row[temp_lst[i][1]:temp_lst[i][1]+2**(cur_level-1)] for row in tmp_arr[temp_lst[i][0]:temp_lst[i][0]+2**(cur_level-1)]]
-        if i == 0:
-            new_i = 1
-        elif i == 1:
-            new_i = 3
-        elif i == 2:
-            new_i = 0
-        elif i == 3:
-            new_i = 2
-
-        #돌려주기
-        for p in range (temp_lst[new_i][0],temp_lst[new_i][0]+2**(cur_level-1)):
-            for q in range (temp_lst[new_i][1], temp_lst[new_i][1]+2**(cur_level-1)):
-                arr[p][q] = mini_arr[p-temp_lst[new_i][0]][q-temp_lst[new_i][1]]
-
-
-#인자로 받는 것은 level
-def find_start_point(cur_level):
-    if cur_level == 0:
-        return 0
-
-    #i와 j는 rotate를 할 시작지점이 되는 거다.
-    for i in range (0, 2**N, 2**cur_level):
-        for j in range (0, 2**N, 2**cur_level):
-            rotate_by_level(i, j, cur_level)
-
-
-def melt():
-
-    need_to_melt = [[0] * (2**N) for _ in range (2**N)]
-
+    #녹는다.
+    melted_ice = [[0] * 2**N for _ in range (2**N)]
     for i in range (2**N):
         for j in range (2**N):
-
-            if arr[i][j] == 0:
-                continue
-
-            cur_cnt = 0
-
-            for di, dj in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+            cnt = 0
+            for di, dj in ((-1, 0),(1, 0), (0, 1), (0, -1)):
                 ni = di + i
                 nj = dj + j
-
                 if 0 <= ni < 2**N and 0 <= nj < 2**N and arr[ni][nj] != 0:
-                    cur_cnt += 1
+                    cnt += 1
 
-            if cur_cnt >= 3:
+            if cnt >= 3:
                 continue
             else:
-                need_to_melt[i][j] = 1
+                melted_ice[i][j] += 1
 
-
-    #녹이기
     for i in range(2 ** N):
         for j in range(2 ** N):
-            if need_to_melt[i][j] == 1:
-                arr[i][j] -= 1
+            arr[i][j] -= melted_ice[i][j]
+            if arr[i][j] < 0:
+                arr[i][j] = 0
 
-
-#회전 가능 레벨 N, Q는 회전횟수
-N, Q = map(int, input().split())
-arr = [list(map(int, input().split())) for _ in range (2**N)]
-
-rotate_levels = list(map(int, input().split()))
-
-for rl in rotate_levels:
-    find_start_point(rl)
-    melt()
-
-visited = [[0] * (2**N) for _ in range (2**N)]
-max_iceberg = 0
-for i in range (2**N):
-    for j in range (2**N):
+ans_cnt = 0
+visited = [[0] * 2**N for _ in range (2**N)]
+for i in range(2 ** N):
+    for j in range(2 ** N):
         if visited[i][j] == 0 and arr[i][j] != 0:
-            bfs(i, j)
-
+            visited[i][j] = 1
+            res = bfs(i, j)
+            ans_cnt = max(res, ans_cnt)
 
 print(sum(map(sum, arr)))
-print(max_iceberg)
-
+print(ans_cnt)
