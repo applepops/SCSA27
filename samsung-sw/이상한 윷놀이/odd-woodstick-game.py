@@ -48,17 +48,13 @@ while True:
             my_hommies = horses_in_arr[ci][cj][my_idx:]
             horses_in_arr[ci][cj] = horses_in_arr[ci][cj][:my_idx]
 
-            if arr[ni][nj] == 0: #흰색인 경우
-                horses_in_arr[ni][nj] += my_hommies
-                for horse in my_hommies:
-                    horses_info[horse][0] = ni
-                    horses_info[horse][1] = nj
-            elif arr[ni][nj] == 1: #빨강색인 경우
+            if arr[ni][nj] == 1:  # 빨강색인 경우
                 my_hommies.reverse()
-                horses_in_arr[ni][nj] += my_hommies
-                for horse in my_hommies:
-                    horses_info[horse][0] = ni
-                    horses_info[horse][1] = nj
+
+            horses_in_arr[ni][nj] += my_hommies
+            for horse in my_hommies:
+                horses_info[horse][0] = ni
+                horses_info[horse][1] = nj
 
         if len(horses_in_arr[ni][nj]) >= 4:
             is_end = True
