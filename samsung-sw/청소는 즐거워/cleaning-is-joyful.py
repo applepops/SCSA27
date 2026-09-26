@@ -1,5 +1,3 @@
-from pprint import pprint
-
 def rotate_info(d):
     new_info = [row[:] for row in info]
 
