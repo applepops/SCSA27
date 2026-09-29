@@ -1,131 +1,111 @@
-def push_pizza():
-    global arr
+def add_1(now_pizza):
+   min_flour = min(now_pizza)
+   for i in range (len(now_pizza)):
+       if now_pizza[i] == min_flour:
+           now_pizza[i]+= 1
 
-    arr_0 = [row[:] for row in arr[:]]
-    visited = [row[:] for row in arr[:]]
-    for i in range(len(arr)):
-        for j in range(len(arr[i])):
-            arr_0[i][j] = 0
-            visited[i][j] = 0
+def push_pizza(now_pizza):
 
-    for i in range(len(arr)):
-        for j in range(len(arr[i])):
-            visited[i][j] = 1
+    max_col = -1
 
-            for di, dj in ((-1, 0), (1, 0), (0, 1), (0, -1)):
-                ni = i + di
-                nj = j + dj
+    for i in range (0, len(now_pizza)):
+        if len(now_pizza[i]) > max_col:
+            max_col = len(now_pizza[i])
 
-                if 0 <= ni < len(arr) and 0 <= nj < len(arr[ni]) and visited[ni][nj] != 0:
-                    d = abs(arr[i][j] - arr[ni][nj]) // 5
-                    if arr[i][j] >= arr[ni][nj]:
-                        arr_0[i][j] -= d
-                        arr_0[ni][nj] += d
-                    else:
-                        arr_0[i][j] += d
-                        arr_0[ni][nj] -= d
+    tmp = [[0] * max_col for _ in range (len(now_pizza))] #0 채워넣기 용도
+    add_tmp = [[0] * max_col for _ in range (len(now_pizza))] #얼마 더해줄지 계산용
 
-    for i in range(len(arr)):
-        for j in range(len(arr[i])):
-            arr[i][j] += arr_0[i][j]
+    for i in range (0, len(now_pizza)):
+        for j in range (0, len(now_pizza[i])):
+            tmp[i][j] = now_pizza[i][j]
 
-def flatten_pizza():
-    global arr
+    for i in range (0, len(now_pizza)):
+        for j in range (0, len(now_pizza[i])):
+            for di, dj in ((-1, 0), (1, 0), (0, -1), (0, 1)):
+                ni = di + i
+                nj = dj + j
 
-    arr = [list(row) for row in zip(*arr[::-1])] + [arr[-1][len(arr[0]):]]
-    flattened_arr = []
-    for i in range(len(arr)):
-        for j in range(len(arr[i])):
-            flattened_arr.append(arr[i][j])
+                if 0 <= ni < len(now_pizza) and 0 <= nj < max_col and tmp[ni][nj] != 0 and tmp[i][j] > tmp[ni][nj]:
+                    gap = abs(tmp[i][j] - tmp[ni][nj]) // 5
+                    add_tmp[i][j] -= gap
+                    add_tmp[ni][nj] += gap
 
-    return flattened_arr
+    for i in range (0, len(now_pizza)):
+        for j in range (0, len(now_pizza[i])):
+            tmp[i][j] += add_tmp[i][j]
 
+    return tmp
 
-#나는 이미 풀었다.
-#문제를 다 이해하기 전까지 생각 금지
-#잊을만한 애들은 미리 주석으로 다 써두기
+def make_into_line(now_pizza):
 
-#입력받기
+    col_len = len(now_pizza[0])
+    pizza_line = []
+
+    for j in range (0, col_len):
+        for i in range (len(now_pizza)-1, -1, -1):
+            if now_pizza[i][j] == 0:
+                continue
+            pizza_line.append(now_pizza[i][j])
+
+    return pizza_line
+
+#[입력받기]
 N, K = map(int, input().split())
-arr = list(map(int, input().split()))
+input_pizza = list(map(int, input().split()))
+now_pizza = input_pizza[:]
+turn = 0
 
-turn = 0 #횟수
+########################
+#실행부
+########################
 
-#끝없이.. 반복할거야..
 while True:
-    #0. 밀가루 양의 최댓값과 최솟값을 알아온다. -> 엣지. 처리 안했지만 이미 K이하인 경우
-    #0.1 그 차이가 K 이하면 break 아니면 계속 반복.
-    max_milraru = max(arr)
-    min_milraru = min(arr)
-    if max_milraru - min_milraru <= K:
+
+    max_flour, min_flour = max(now_pizza), min(now_pizza)
+    if max_flour - min_flour <= K:
         break
 
-    #0.2 횟수 += 1
     turn += 1
 
+    #[1] 밀가루 더해...
+    add_1(now_pizza)
 
-    #1. 밀가루 양이 가장 작은 위치에 밀가루를 1만큼 더 넣는다. (모든 가장 작은 위치에 다)
-    for i in range (len(arr)):
-        if arr[i] == min_milraru:
-            arr[i] += 1
+    now_pizza = [now_pizza[:]] #2차원으로 만들기
+    cut = 1
 
-    #여기서부터 arr은 2차원 상태로.
-    arr = [arr]
-    #2.도우를 말아준다.
-    tmp_lst = [] #슬라이싱으로 빼와야할 것 같음.
-
-    c = 1
+    #[2] 피자 말아..
     while True:
+        tmp_pizza = [row[0:cut] for row in now_pizza]
+        bottom_pizza = [now_pizza[-1][cut:]]
 
-        for i in range (len(arr)):
-            tmp_lst.append(arr[i][:c])
-            for _ in range (c):
-                arr[i].pop(0)
+        tmp_pizza = [list(row) for row in zip(*tmp_pizza[::-1])]
 
-        tmp_lst = [list(row) for row in zip(*tmp_lst[::-1])] #시계방향으로 돌려서 넣기
-
-        arr = tmp_lst + [arr[-1]]
-        c = len(arr[0])
-        tmp_lst = [] #비워주기
-
-        #다음에 올라갈 놈이고.. / 그 옆은
-        if len(arr) > len(arr[-1])-(len(arr)-1):
+        if len(bottom_pizza[0]) < len(tmp_pizza[0]):
             break
 
+        now_pizza = tmp_pizza + bottom_pizza
+        cut = len(now_pizza[0])
 
-    #3. 도우를 꾹 눌러준다. (동시에 진행.)
-    # 모든 좌표들을 돌면서 따로 추가 혹은 빼주는 배열 만들어서 거기에 저장해두고 한꺼번에 연산.
-    push_pizza()
+    #[3] 도우를 꾹 눌러요
+    now_pizza = push_pizza(now_pizza)
 
-    #4. 한줄로 쭉 핀다. 열이 작은 것 그리고 행이 큰 순서로.
-    #flatten된 상태.
-    flattened_arr = flatten_pizza()
+    #[3.1] 열작 행큰 순으로 1차원 리스트로 만들어준다.
+    now_pizza = [make_into_line(now_pizza)]
 
+    #[4] 도우를 두 번 반으로 접어준다.
+    cut = N // 2
+    for _ in range (2):
+        tmp_pizza = [row[0:cut] for row in now_pizza]
+        bottom_pizza = [row[cut:] for row in now_pizza[:]]
+        tmp_pizza = [row[::-1] for row in tmp_pizza[::-1]]
 
-    #5. 도우를 두 번 반으로 접는다.
+        now_pizza = tmp_pizza + bottom_pizza
+        cut //= 2
 
-    #한 번 접었다.
-    tmp_arr = []
-    tmp_arr.append(flattened_arr[0:len(flattened_arr)//2][::-1])
-    tmp_arr.append(flattened_arr[len(flattened_arr)//2:])
+    #[4] 또 눌러
+    now_pizza = push_pizza(now_pizza)
+    #[4.1] 또 리스트로 만들어
+    now_pizza = make_into_line(now_pizza)
 
-    cur_len = len(tmp_arr[0])
-
-    for i in range(len(tmp_arr)):
-        tmp_lst.append(tmp_arr[i][:cur_len//2])
-        for _ in range(cur_len//2):
-            tmp_arr[i].pop(0)
-
-    tmp_lst = [list(row) for row in zip(*tmp_lst[::-1])]
-    tmp_lst = [list(row) for row in zip(*tmp_lst[::-1])]
-
-    arr = tmp_lst + tmp_arr
-
-    #6. 도우를 꾹 눌러주는 거 한 번 더
-    push_pizza()
-
-    # #7. 한줄로 쭉 핀다. 열이 작은 것 그리고 행이 큰 순서로.
-    arr = flatten_pizza()
-    #flatten된 상태.
 
 print(turn)
