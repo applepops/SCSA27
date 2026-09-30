@@ -22,7 +22,7 @@ def go_near_dust(si, sj):
         if cd > min_distance:
             break
 
-        if 1 <= arr[ci][cj] <= 100 and min_distance >= cd:
+        if 1 <= arr[ci][cj] and min_distance >= cd:
             min_distance = min(min_distance, cd)
             hubo.append([ci, cj, cd])
 
@@ -142,9 +142,6 @@ for k in range (K):
 ####################
 for l in range (L):
 
-    # print()
-    # print(f"{l}턴째")
-
     #[1] 청소기의 이동
     for k in range (K):
         r, c = cleaner_ijs[k]
@@ -155,33 +152,16 @@ for l in range (L):
         cleaner_arr[new_r][new_c] = k + 1
         cleaner_ijs[k] = [new_r, new_c]
 
-    # print("청소기들 위치")
-    # for row in cleaner_arr:
-    #     print(*row)
-
     #[2] 청소
     for k in range (K):
         r, c = cleaner_ijs[k]
         find_best_way_and_clean(r, c)
 
-    # print("청소 완료")
-    # for row in arr:
-    #     print(*row)
-
     #[3] 먼지 축적
     add_dust()
 
-    # print("먼지 축적 완료")
-    # for row in arr:
-    #     print(*row)
-
-
     #[4] 먼지 확산
     spread_dust()
-
-    # print("먼지 확산 완료")
-    # for row in arr:
-    #     print(*row)
 
     #[5] 출력
     res = cal_total_dust()
