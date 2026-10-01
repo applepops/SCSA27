@@ -181,7 +181,7 @@ for _ in range (100):
     new_heat_arr = [[0] * N for _ in range (N)]
     for vr, vc in list(volcano_info.keys()):
         if not (vr, vc) in exploded_vols:
-            new_heat_arr[vr][vc] = heat_arr[vr][vc]
+            pass
         else:
             s_mout[vr][vc] = 0
 
