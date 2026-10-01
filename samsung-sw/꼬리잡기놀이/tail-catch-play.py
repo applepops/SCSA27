@@ -1,198 +1,155 @@
-#이동 선이 서로 겹치지 않는다는 게 어디까지일까? 이것만 30분 이상 고민함.
+from collections import deque
 
-def dfs (ci, cj, gn):
+def bfs(si, sj, tnum):
 
-    groups[ci][cj] = gn
+    q = deque()
+    q.append([si, sj])
+    v[si][sj] = 1
 
-    if arr[ci][cj] == 4:
-        people_by_group[gn].append(-1) #4는 그냥 -1로 만들 거야.
-    else:
-        people_by_group[gn].append(arr[ci][cj])
+    ijs = []
+    lst = []
 
-    ij_by_group[gn].append([ci, cj])
+    while q:
 
+        ci, cj = q.pop()
+        ijs.append((ci, cj))
+        lst.append(arr[ci][cj])
+        team_num_arr[ci][cj] = tnum
 
-    for di, dj in ((0, 1), (1, 0), (0, -1), (-1, 0)):
-        ni = ci + di
-        nj = cj + dj
+        for di, dj in ((-1, 0), (1, 0), (0, 1), (0, -1)):
+            ni = ci + di
+            nj = cj + dj
 
-        if 0 <= ni < N and 0 <= nj < N and 1 <= arr[ni][nj] <= 4 and groups[ni][nj] == 0:
-            dfs(ni, nj, gn)
+            if 0 <= ni < N and 0 <= nj < N and arr[ni][nj] != 0 and v[ni][nj] == 0:
+                q.append([ni, nj])
+                v[ni][nj] = 1
 
-def put_people_back():
-    global arr
-
-    for i in range(1, M + 1):
-        for p in range(len(people_by_group[i])):
-            pi, pj = ij_by_group[i][p]
-            arr[pi][pj] = people_by_group[i][p]
+    team_ijs[tnum] = ijs[:]
+    team_cur_state[tnum] = lst[:]
 
 
-def custom_print(arr_):
-    print("===============")
-    for row in arr_:
-        print(*row)
-    print("===============")
-
-#입력받기
-#N*N, 팀 개수, 라운드 수(1-based)
 N, M, K = map(int, input().split())
-K-=1 #0-based로 만들게
+arr = [list(map(int, input().split())) for _ in range (N)]
+team_num_arr = [[0] * N for _ in range (N)]
 
-arr = [list(map(int,  input().split())) for _ in range (N)]
+#[0] 기초 공사
+team_ijs = [[] for _ in range (M+1)] #더미 주의
+team_cur_state = [[] for _ in range (M+1)] #더미 주의
 
-#그룹을 확인하는 arr를 만들거임. dfs에서 visited로도 사용하고..
-groups = [[0] * N for _ in range (N)]
 
-people_by_group = [[] for _ in range (M+1)]
-ij_by_group = [[] for _ in range (M+1)]
-
-group_num = 1
-total_score = 0
-
+v = [[0] * N for _ in range (N)]
+team_num = 1
 for i in range (N):
     for j in range (N):
-        if arr[i][j] > 0 and groups[i][j] == 0:
-            dfs(i, j, group_num)
-            group_num += 1
+        if arr[i][j] != 0 and v[i][j] == 0:
+            bfs(i, j, team_num)
+            team_num += 1
 
-groups_are_heading_to = [False] * (M+1) #False가 오른쪽이고 True가 왼쪽임.
+for m in range (1, M+1):
+    team_cur_state[m] = deque(team_cur_state[m])
 
+for m in range (1, M+1):
+    idx_1 = team_cur_state[m].index(1)
+    num = 1
+    cur_idx = idx_1
+    if team_cur_state[m][(idx_1 - 1) % len(team_cur_state[m])] == 2:
+        dir = -1
+    else:
+        dir = 1
 
-#사람들 번호를 이쁘게 다시 맥여주자.
-for i in range (1, M+1):#딱 보니 여기가 잘못됐다. 에효에효에효
-
-    #방향을 알아보자...
-    flag = False
-
-    gijun = 0
-
-    #왼쪽으로 가는 사람들인지 알아보자
-    for p in range(0, len(people_by_group[i])):
-        if people_by_group[i][p] == 1:
-            gijun = p
-
-    #이게 왼쪽으로 가는 거지.
-    if people_by_group[i][(gijun + 1) % len(people_by_group[i])] == 2:
-        flag = True #왼쪽으로 간다는 뜻임.
-        groups_are_heading_to[i] = True
-
-    #이게 아니면 걍 오른쪽인 거지. 오른쪽이 디폴트.
+    for _ in range(len(team_cur_state[m])-1):
+        cur_idx = (cur_idx + dir) % len(team_cur_state[m])
+        if team_cur_state[m][cur_idx] == 4:
+            team_cur_state[m][cur_idx] = -1
+        else:
+            num += 1
+            team_cur_state[m][cur_idx] = num
 
 
-    if flag: #왼쪽으로 가는 사람들
-        for p in range(0, len(people_by_group[i])):
-            if people_by_group[i][p] == 1:
-                start_idx = p
+ans = [0] * M
 
-        people_cnt = 0
-        for p in range(0, len(people_by_group[i])):
-            if people_by_group[i][p] >= 1:
-                people_cnt+=1
-        p_num = 1
-        for _ in range (people_cnt):
-            if people_by_group[i][start_idx] >= 1:
-                people_by_group[i][start_idx] = p_num
-                p_num += 1
-            start_idx = (start_idx + 1) % len(people_by_group[i])
+for k in range (1, K+1):
 
+    #[1] 이동하기
+    for m in range (1, M+1):
+        idx_1 = team_cur_state[m].index(1)
+        if team_cur_state[m][(idx_1 + 1) % len(team_cur_state[m])] == 2:
+            #반시계 방향
+            team_cur_state[m].rotate(-1)
+            pass
+        else:
+            #시계 방향
+            team_cur_state[m].rotate(1)
 
-    elif not flag: #오른쪽으로 가는 사람들
-        for p in range(len(people_by_group[i])-1, 0, -1):
-            if people_by_group[i][p] == 1:
-                start_idx = p
+    #도로 집어넣어주자.
+    for m in range(1, M + 1):
+        for member in range(len(team_cur_state[m])):
+            ci, cj = team_ijs[m][member]
+            arr[ci][cj] = team_cur_state[m][member]
 
-        people_cnt = 0
-        for p in range(0, len(people_by_group[i])):
-            if people_by_group[i][p] >= 1:
-                people_cnt += 1
-        p_num = 1
-        for _ in range (people_cnt):
-            if people_by_group[i][start_idx] >= 1:
-                people_by_group[i][start_idx] = p_num
-                p_num += 1
-            start_idx = (start_idx - 1) % len(people_by_group[i])
+    #[2] 공 던지기
+    if k > 4*N:
+        nk = k % (4*N)
+    else:
+        nk = k
 
-
-#이제 다시 집어 넣는다.. 이게 뭔짓이지? 으엥
-put_people_back()
-
-
-for k in range (0, K+1): #1-based
-    #이제 기본 세팅은 다 끝났고.. 라운드 반복하자.
-
-    #K번 반복되는 라운드....
-    #[1] 각 사람은 머리사람을 따라서 한 칸 이동한다.
-    for i in range (1, M+1):
-        if groups_are_heading_to[i] == False: #오른쪽으로 가고 있는 애들이면..
-            tmp = people_by_group[i].pop(-1)
-            people_by_group[i].insert(0, tmp)
-        else: #왼쪽으로 가는 애들이면..
-            tmp = people_by_group[i].pop(0)
-            people_by_group[i].append(tmp)
-
-    put_people_back()
-
-    did_we_visit_this_group = [0] * (M+1) #매라운드마다 새롭게 초기화를 시켜야 하는 놈.
-
-    #[2] 현재 k가 무엇인지에 따라서 공을 처 받을 것이다.
-
-    tmp_k = k % (4*N) #4N번 넘어가는 미친 놈을 위해 tmp_k를 만들자.
-
-    if 0 <= tmp_k <= N-1: #위에서 아래로 내려가는 row
+    mi, mj = -1, -1
+    if 1 <= nk <= N:
         for j in range (0, N):
-            if did_we_visit_this_group[groups[tmp_k][j]] == 0 and arr[tmp_k][j] >= 1:
-                did_we_visit_this_group[groups[tmp_k][j]] = 1 #이제 못 가게 해야지
-                total_score += (arr[tmp_k][j] * arr[tmp_k][j])
+            if 1 <= arr[nk-1][j]:
+                mi, mj = nk-1, j
                 break
 
-    elif N <= tmp_k <= 2*N-1: #왼쪽에서 오른쪽으로 가는 col
-        tmp_k -= N
-        for i in range (N-1, -1, -1):
-            if did_we_visit_this_group[groups[i][tmp_k]] == 0 and arr[i][tmp_k] >= 1:
-                did_we_visit_this_group[groups[i][tmp_k]] = 1 #이제 못 가게 해야지
-                total_score += (arr[i][tmp_k] * arr[i][tmp_k])
+    elif N+1 <= nk <= 2*N:
+        nk = nk - N
+        for i in range(N-1,-1,-1):
+            if 1 <= arr[i][nk-1]:
+                mi, mj = i, nk-1
                 break
 
-    elif 2*N <= tmp_k <= 3*N-1: #아래에서 위로 가는 row
-        tmp_k -= 2*N
-        tmp_k = (N-1) - tmp_k
+    elif 2*N+1 <= nk <= 3*N:
+        nk = (5*N + 1) - nk
+        nk = nk - (N * 2)
         for j in range (N-1, -1, -1):
-            if did_we_visit_this_group[groups[tmp_k][j]] == 0 and arr[tmp_k][j] >= 1:
-                did_we_visit_this_group[groups[tmp_k][j]] = 1 #이제 못 가게 해야지
-                total_score += (arr[tmp_k][j] * arr[tmp_k][j])
+            if 1 <= arr[nk-1][j]:
+                mi, mj = nk-1, j
                 break
 
-    elif 3*N <= tmp_k <= 4*N-1: #오른쪽에서 왼쪽으로 가는 col
-        tmp_k -= 3*N
-        tmp_k = (N-1) - tmp_k
-        for i in range (0, N):
-            if did_we_visit_this_group[groups[i][tmp_k]] == 0 and arr[i][tmp_k] >= 1:
-                did_we_visit_this_group[groups[i][tmp_k]] = 1 #이제 못 가게 해야지
-                total_score += (arr[i][tmp_k] * arr[i][tmp_k])
+    elif 3*N+1 <= nk <= 4*N:
+        nk = (7 * N + 1) - nk
+        nk = nk - (N * 3)
+        for i in range(0, N):
+            if 1 <= arr[i][nk - 1]:
+                mi, mj = i, nk - 1
+                break
+        #nk가 0이다.
+    else:
+        for i in range(0, N):
+            if 1 <= arr[i][0]:
+                mi, mj = i, 0
                 break
 
-    #[3] 공을 획득한 그룹은 방향을 바꿔야됨.
-    for g in range (1, len(did_we_visit_this_group)):
-        if did_we_visit_this_group[g] == 1:
+    #공을 맞은 팀이 없음.
+    if (mi, mj) == (-1, -1):
+        continue
 
-            if groups_are_heading_to[g]:
-                groups_are_heading_to[g] = False
-            else:
-                groups_are_heading_to[g] = True
+    #공 맞은 팀 있음.
+    # [3] 답 더해주기
+    cur_team_num = team_num_arr[mi][mj]
+    idx_my = team_ijs[cur_team_num].index((mi, mj))
 
-            ccnt = 0
-            for people in range (len(people_by_group[g])):
-                if people_by_group[g][people] >= 1:
-                    ccnt += 1 #인간 수
+    ans[cur_team_num-1] += team_cur_state[cur_team_num][idx_my] ** 2
 
-            for people in range(len(people_by_group[g])):
-                if people_by_group[g][people] >= 1:
-                    people_by_group[g][people] -= (ccnt +1)
-                    people_by_group[g][people] *= -1
+    #[4] 머리사람과 꼬리사람 바꾸기
+    max_num = max(team_cur_state[cur_team_num])
+    for member in range(len(team_cur_state[cur_team_num])):
+        if team_cur_state[cur_team_num][member] != -1:
+            team_cur_state[cur_team_num][member ]= max_num - team_cur_state[cur_team_num][member] + 1
 
-    put_people_back()
 
-    # print(f"{k+1}라운드 끝났어..")
-    # custom_print(arr)
-print(total_score)
+    #도로 집어넣어주자.
+    for member in range(len(team_cur_state[cur_team_num])):
+        ci, cj = team_ijs[cur_team_num][member]
+        arr[ci][cj] = team_cur_state[cur_team_num][member]
+
+print(sum(ans))
