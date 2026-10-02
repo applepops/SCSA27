@@ -1,3 +1,11 @@
+'''
+엣지: N이 1이라서 즉시 종료
+1 1 1 4
+0
+'''
+
+#리팩 버전 -> bfs 하나로
+
 from collections import deque
 
 def in_range(i, j):
@@ -14,20 +22,20 @@ def change_dir(direction):
     elif direction == 3:
         return 2
 
-def bfs(si, sj):
+def bfs(si, sj, wd):
 
     min_distance = float("inf")
     hubo = []
 
     q = deque()
-    q.append([si, sj, 0])
+    q.append([si, sj, 0, wd])
 
     now_visited = [[0] * N for _ in range (N)]
     now_visited[si][sj] = 1
 
     while q:
 
-        ci, cj, cd = q.popleft()
+        ci, cj, cd, cdir = q.popleft()
 
         if cd > min_distance:
             break
@@ -35,40 +43,7 @@ def bfs(si, sj):
         #아직 가본 적 없는 가장 가까운 바다 후보지에 추가
         if visited[ci][cj] == 0 and min_distance >= cd:
             min_distance = min(min_distance, cd)
-            hubo.append([ci, cj])
-
-        for di, dj in didj:
-
-            ni = di + ci
-            nj = dj + cj
-
-            #격자 내이고, 이번 bfs에서 미방문이고, 바다인 곳으로 이동
-            if in_range(ni, nj) and now_visited[ni][nj] == 0 and arr[ni][nj] == 0:
-                q.append([ni, nj, cd + 1])
-                now_visited[ni][nj] = 1
-
-    if hubo:
-        hubo = sorted(hubo, key=lambda x: (x[0], x[1]))
-        return hubo[0][0], hubo[0][1]
-    else:
-        return -1, -1
-
-def go_whale(si, sj, ei, ej, d):
-
-    q = deque()
-    q.append([si, sj, d])
-
-    now_visited = [[0] * N for _ in range (N)]
-    now_visited[si][sj] = 1
-    last_whale_d = -1
-
-    while q:
-
-        ci, cj, cd = q.popleft()
-
-        if (ci, cj) == (ei, ej):
-            last_whale_d = cd
-            break
+            hubo.append([ci, cj, cdir])
 
         for nd in range (4):
 
@@ -77,12 +52,15 @@ def go_whale(si, sj, ei, ej, d):
 
             #격자 내이고, 이번 bfs에서 미방문이고, 바다인 곳으로 이동
             if in_range(ni, nj) and now_visited[ni][nj] == 0 and arr[ni][nj] == 0:
-                q.append([ni, nj, nd])
+                q.append([ni, nj, cd + 1, nd])
                 now_visited[ni][nj] = 1
 
-    ans.append([ei, ej])
-
-    return last_whale_d
+    if hubo:
+        hubo = sorted(hubo, key=lambda x: (x[0], x[1]))
+        ans.append([hubo[0][0], hubo[0][1]])
+        return hubo[0][0], hubo[0][1], hubo[0][2]
+    else:
+        return -1, -1, -1
 
 
 didj = [(0, -1), (1, 0), (0, 1), (-1, 0)] #좌하우상
@@ -165,15 +143,14 @@ while True:
 
 
     #[2] 가까운 바다로 이동
-    ei, ej = bfs(whale_i, whale_j)
+    ei, ej, new_d = bfs(whale_i, whale_j, whale_d)
     #더 갈 곳이 없는 경우. 끝내자.
-    if (ei, ej) == (-1, -1):
+    if (ei, ej, new_d) == (-1, -1, -1):
         break
 
-    whale_d = go_whale(whale_i, whale_j, ei, ej, whale_d)
+    whale_d = new_d
     whale_i, whale_j = ei, ej
     visited[ei][ej] = 1
-
 
 for i, j in ans:
     print(i+1, j+1)
