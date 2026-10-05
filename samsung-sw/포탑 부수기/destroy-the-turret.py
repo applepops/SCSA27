@@ -108,7 +108,7 @@ def bomb(si, sj, ei, ej):
         nj %= M
 
         #공격자 제외
-        if (ni, nj) == (ei, ej):
+        if (ni, nj) == (si, sj):
             continue
 
         if arr[ni][nj] > 0:
