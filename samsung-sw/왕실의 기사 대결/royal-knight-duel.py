@@ -108,12 +108,12 @@ for k in range (K):
         if check_movable(lst, d):
             # print(True)
             move(lst, d)
-            update_knight_arr()
             # print("이동 후")
             # for row in knights_arr:
             #     print(*row)
             # print()
             get_damage(lst, knight_num)
+            update_knight_arr()
             # print(knights_blood)
             # print(copied_knights_blood)
 
@@ -125,8 +125,3 @@ for k in knights_blood.keys():
     ans += original_blood - remained_blood
 
 print(ans)
-
-
-
-
-
