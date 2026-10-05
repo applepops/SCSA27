@@ -1,162 +1,132 @@
-#제출 후 실패시 30분 뒤에 제출 가능함.
-#신중한 단위테스트와 검증
-#ideation 작은 과정도 꼼꼼하게 하기.
 from collections import deque
 
-def find_moving_knights(snum, d):
-    m_knights = set()
+didj = [(-1, 0), (0, 1), (1, 0), (0, -1)]
+
+def update_knight_arr():
+    global knights_arr
+
+    new_knights_arr = [[0] * N for _ in range (N)]
+    for m in knights_info.keys():
+        si, sj, h, w = knights_info[m]
+        for i in range (si, si+h):
+            for j in range (sj, sj+w):
+                new_knights_arr[i][j] = m
+
+    knights_arr = new_knights_arr
+
+def find_related_knights(knight_num, d):
+
+    related_knights = set()
 
     q = deque()
-    visited = [[0] * L for _ in range(L)]
-
-    for i in range(knights_info[snum][0], knights_info[snum][0] + knights_info[snum][2]):
-        for j in range(knights_info[snum][1], knights_info[snum][1] + knights_info[snum][3]):
-            q.append([i, j])
+    visited = [[0] * N for _ in range (N)]
+    si, sj, h, w = knights_info[knight_num]
+    for i in range(si, si + h):
+        for j in range(sj, sj + w):
             visited[i][j] = 1
-
-    m_knights.add(snum)
+            q.append([i, j, knight_num])
 
     while q:
-        ci, cj = q.popleft()
+        ci, cj, cnum = q.popleft()
+        related_knights.add(cnum)
 
-        if d == 0:
-            di, dj = -1, 0
+        ni = didj[d][0] + ci
+        nj = didj[d][1] + cj
 
-        elif d == 1:
-            di, dj = 0, 1
+        if 0 <= ni < N and 0 <= nj < N and visited[ni][nj] == 0 and knights_arr[ni][nj] != 0:
+            new_kn = knights_arr[ni][nj]
+            si, sj, h, w = knights_info[new_kn]
 
-        elif d == 2:
-            di, dj = 1, 0
-
-        elif d == 3:
-            di, dj = 0, -1
-
-        ni = di + ci
-        nj = dj + cj
-
-        if 0 <= ni < L and 0 <= nj < L and visited[ni][nj] == 0 and knights[ni][nj] >= 0:
-            m_knights.add(knights[ni][nj])
-
-            for i in range(knights_info[knights[ni][nj]][0], knights_info[knights[ni][nj]][0] + knights_info[knights[ni][nj]][2]):
-                for j in range(knights_info[knights[ni][nj]][1], knights_info[knights[ni][nj]][1] + knights_info[knights[ni][nj]][3]):
-                    q.append([i, j])
+            for i in range(si, si + h):
+                for j in range(sj, sj + w):
                     visited[i][j] = 1
+                    q.append([i, j, new_kn])
 
-    return m_knights
+    return list(related_knights)
 
+def check_movable(klst, d):
+    for k in klst:
+        si, sj, h, w = knights_info[k]
+        si = si + didj[d][0]
+        sj = sj + didj[d][1]
 
-def can_we_move(m_knights, d):
-    for k in m_knights:
-        r, c, h, w, hp = knights_info[k]
-
-        if d == 0:
-            nr, nc = r - 1, c
-        elif d == 1:
-            nr, nc = r, c + 1
-        elif d == 2:
-            nr, nc = r + 1, c
-        else:
-            nr, nc = r, c - 1
-
-        for i in range(nr, nr + h):
-            for j in range(nc, nc + w):
-                if not (0 <= i < L and 0 <= j < L):
+        for i in range(si, si + h):
+            for j in range(sj, sj + w):
+                if not (0 <= i < N and 0 <= j < N) or arr[i][j] == 2:
                     return False
-                if arr[i][j] == 2:
-                    return False
-
-    return True
-
-def put_knights_in_arr():
-    global knights
-
-    knights = [[-1] * L for _ in range(L)] #싹 초기화
-    for k in range (N):
-        if not dead_knights[k]: #죽은 애가 아니면
-            for i in range(knights_info[k][0], knights_info[k][0] + knights_info[k][2]):
-                for j in range(knights_info[k][1], knights_info[k][1] + knights_info[k][3]):
-                    knights[i][j] = k
-
-def print_knights():
-    for row in knights:
-        print(*row)
-
-#[입력받기]
-#체크판 크기, 기사들 숫자, 명령 개수
-L, N, Q = map(int, input().split()) #[주의] 체스판 L임
-
-arr = [list(map(int, input().split())) for _ in range (L)] #불변
-
-knights = [[-1] * L for _ in range (L)]
-
-knights_info = []
-for _ in range (N):
-    r, c, h, w, k = map(int, input().split())
-    r, c = r-1, c-1
-    knights_info.append([r, c, h, w, k])
-
-dead_knights = [False] * N
-hurts_knights = [0] * N
-
-put_knights_in_arr()
-
-#왕이 내린 명령만큼 돈다..
-for q in range (Q):
-
-    knight_num, way = map(int, input().split())
-    knight_num -= 1
-
-    put_knights_in_arr()
-
-    #[1] 이미 사라진 기사를 움직이려고 하는가?
-    if dead_knights[knight_num]:
-        continue
     else:
-        #아직 남아있는 기사다.
+        return True
 
-        #[3] 움직임의 대상이 되는 기사들을 알아오자.
-        moving_knights = find_moving_knights(knight_num, way)
+def move(klst, d):
+    for k in klst:
+        si, sj, h, w = knights_info[k]
+        si = si + didj[d][0]
+        sj = sj + didj[d][1]
+        knights_info[k] = [si, sj, h, w]
 
-        #[4] 이번 이동이 가능한지 check한다.
-        if can_we_move(moving_knights, way):
-            # print("이동 가능: True")
-            #[5] 기사들 위치를 업데이트 해준다.
-            for m in moving_knights:
+def get_damage(klst, knum):
 
-                if way == 0:
-                    knights_info[m][0] -= 1
-                elif way == 1:
-                    knights_info[m][1] += 1
-                elif way == 2:
-                    knights_info[m][0] += 1
-                elif way == 3:
-                    knights_info[m][1] -= 1
-
-            #[6] 데미지를 계산해서 업데이트 해준다.
-            for m in moving_knights:
-                if m == knight_num: #[주의] 명령을 받은 기사는 피해를 입지 않는다.
-                    continue
-                for i in range(knights_info[m][0], knights_info[m][0] + knights_info[m][2]):
-                    for j in range(knights_info[m][1], knights_info[m][1] + knights_info[m][3]):
-                        if arr[i][j] == 1: #함정이다
-                            # print("닳는다")
-                            knights_info[m][4] -= 1
-                            hurts_knights[m] += 1 #정보 업데이트
-
-                            # [6.1] 사라진 기사인지도 확인해서 업데이트해준다.
-                            if knights_info[m][4] <= 0:
-                                dead_knights[m] = True #정보 업데이트, 죽었다.
-
-            put_knights_in_arr()
-
-        else: #이동이 불가능하다. 그냥 넘어간다.
+    for k in klst:
+        #명령 받은 기사는 넘어가
+        if k == knum:
             continue
+        si, sj, h, w = knights_info[k]
+        for i in range(si, si + h):
+            for j in range(sj, sj + w):
+                if arr[i][j] == 1:
+                    knights_blood[k] -= 1
 
+    #체력 다 닳은 애들 없애기
+    for k in list(knights_blood.keys()):
+        if knights_blood[k] <= 0:
+            knights_blood.pop(k)
+            knights_info.pop(k)
 
-#[7] 생존한 기사들의 데미지를 더하자.
+#격자 크기, 기사 수, 명령 수
+N, M, K = map(int, input().split())
+arr = [list(map(int, input().split())) for _ in range (N)]
+knights_info = dict()
+knights_blood = dict()
+knights_arr = [[0] * N for _ in range (N)]
+
+for m in range (1, M+1):
+    si, sj, h, w, blood = map(int, input().split())
+    knights_info[m] = [si-1, sj-1, h, w]
+    knights_blood[m] = blood
+
+update_knight_arr()
+copied_knights_blood = knights_blood.copy()
+
+for k in range (K):
+    knight_num, d = map(int, input().split())
+
+    #없는 기사에 대한 명령이 들어올 수 있으니까.
+    if knights_info.get(knight_num):
+        lst = find_related_knights(knight_num, d)
+
+        #움직일 수 있다.
+        if check_movable(lst, d):
+            # print(True)
+            move(lst, d)
+            update_knight_arr()
+            # print("이동 후")
+            # for row in knights_arr:
+            #     print(*row)
+            # print()
+            get_damage(lst, knight_num)
+            # print(knights_blood)
+            # print(copied_knights_blood)
+
 ans = 0
-for n in range (N):
-    if not dead_knights[n]: #살아있는 애들일 때만 더해라.
-        ans += hurts_knights[n]
+for k in knights_blood.keys():
+    original_blood = copied_knights_blood[k]
+    remained_blood = knights_blood[k]
+
+    ans += original_blood - remained_blood
 
 print(ans)
+
+
+
+
+
