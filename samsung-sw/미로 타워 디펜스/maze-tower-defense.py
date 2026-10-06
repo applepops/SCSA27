@@ -1,158 +1,129 @@
-didj = [(0, 1), (1, 0), (0, -1), (-1, 0)] #오, 아래, 좌, 위
+def count_monsters():
+    return sum(map(sum, arr))
 
-#몬스터들을 달팽이에서 꺼내오는 함수
-def get_monster():
-    ci, cj = N // 2, N // 2
-    c_way = 2
-    tmp_lst = [i for i in range(1, N) for _ in range(2)]
-    for t in tmp_lst:
-        for _ in range(t):
-            ni = ci + didj[c_way][0]
-            nj = cj + didj[c_way][1]
+def kill_monsters(direction, how_much):
+    global ans
 
-            if arr[ni][nj] != 0:
-                monsters.append(arr[ni][nj])
+    ci, cj = N//2, N//2
 
-            ci = ni
-            cj = nj
+    for dd in range (1, how_much+1):
+        ni = ci + didj[direction][0] * dd
+        nj = cj + didj[direction][1] * dd
+        ans += arr[ni][nj]
 
-        c_way = (c_way - 1) % 4
+        arr[ni][nj] = 0
 
-    for _ in range(N - 1):
-        ni = ci + didj[c_way][0]
-        nj = cj + didj[c_way][1]
+def get_snail():
 
-        if arr[ni][nj] != 0:
-            monsters.append(arr[ni][nj])
+    monsters = []
+    for i in range (len(snail_ijs)):
+        tmp = arr[snail_ijs[i][0]][snail_ijs[i][1]]
+        if tmp != 0:
+            monsters.append(tmp)
 
-        ci = ni
-        cj = nj
+    return monsters
 
-#몬스터들을 달팽이에 다시 집어넣는 함수
-def put_monster():
-    ci, cj = N // 2, N // 2
-    c_way = 2
-    m = 0
-    tmp_lst = [i for i in range(1, N) for _ in range(2)]
-    for t in tmp_lst:
-        for _ in range(t):
-            ni = ci + didj[c_way][0]
-            nj = cj + didj[c_way][1]
-
-            arr[ni][nj] = monsters[m]
-
-            ci = ni
-            cj = nj
-            m += 1
-
-        c_way = (c_way - 1) % 4
-
-    for _ in range(N - 1):
-        ni = ci + didj[c_way][0]
-        nj = cj + didj[c_way][1]
-
-        arr[ni][nj] = monsters[m]
-
-        ci = ni
-        cj = nj
-        m += 1
-
-
-#계속해서 같은 몬스터가 등장하면 삭제하는 함수.. 진짜 계속 삭제해야 함.
-def delete_monster(monsters):
-
-    global total_score
+def erase_monster(monsters):
+    global ans
 
     while True:
-        need_to_delete_idx = set()
-        for i in range (len(monsters)-1):
-            tmp_idx = []
-            tmp_idx.append(i)
-            for j in range (i+1, len(monsters)):
-                if monsters[i] != monsters[j]:
-                    break
-                if monsters[i] == monsters[j]:
-                    tmp_idx.append(j)
-            if len(tmp_idx) >= 4:
-                for idx in tmp_idx:
-                    need_to_delete_idx.add(idx)
 
-        if not need_to_delete_idx:
-            break
+        new_lst = []
 
-        #몬스터 삭제해서 new_monster에 넣어주기
-        new_monsters = []
-        for i in range (len(monsters)):
-            if i in need_to_delete_idx:
-                total_score += monsters[i] #점수계산
-                continue
+        new_lst.append([1, monsters[0]])
+        for i in range (1, len(monsters)):
+            if monsters[i] == monsters[i-1]:
+                new_lst[-1][0] += 1
             else:
-                new_monsters.append(monsters[i])
-        #갱신
-        monsters = new_monsters
+                new_lst.append([1, monsters[i]])
 
+        new_new_lst =[]
+        for i in range (len(new_lst)):
+            if new_lst[i][0] >= 4:
+                ans += new_lst[i][0] * new_lst[i][1]
+                continue
+            new_new_lst.append(new_lst[i])
+
+        new_monsters = []
+        for i in range (len(new_new_lst)):
+            for _ in range (new_new_lst[i][0]):
+                new_monsters.append(new_new_lst[i][1])
+
+        if monsters != new_monsters:
+            monsters = new_monsters
+        else:
+            break
 
     return monsters
 
 
-def custom_print():
-    for row in arr:
-        print(*row)
 
+def put_snail(monsters):
+    if len(monsters) < len(snail_ijs):
+        monsters += [0] * (len(snail_ijs)- len(monsters))
 
+    for i in range(len(snail_ijs)):
+        arr[snail_ijs[i][0]][snail_ijs[i][1]] = monsters[i]
+
+#########################
 #입력받기
-#격자 크기, 라운드의 횟수
-N, M = map(int, input().split())
+#########################
+didj = [(0, 1), (1, 0), (0, -1), (-1, 0)] #우하좌상
+
+N, K = map(int, input().split())
 arr = [list(map(int, input().split())) for _ in range (N)]
+ans = 0
 
-total_score = 0
+#########################
+#달팽이 기초 공사
+#########################
+snail_dirs = []
+snail_ijs = []
 
-#M회 반복합니다..
-for _ in range (M):
+ci, cj = N//2, N//2
+s_d = 2
+
+for m in range (1, N):
+    for _ in range (2):
+        for _ in range (m):
+            snail_dirs.append(s_d)
+            snail_ijs.append([ci + didj[s_d][0], cj + didj[s_d][1]])
+            ci, cj = ci + didj[s_d][0], cj + didj[s_d][1]
+        s_d = (s_d - 1) % 4
+
+snail_dirs += [(s_d)] * (N-1)
+for _ in range (N-1):
+    snail_ijs.append([ci + didj[s_d][0], cj + didj[s_d][1]])
+    ci, cj = ci + didj[s_d][0], cj + didj[s_d][1]
+
+#########################
+
+for k in range (1, K+1):
+
+    orginal_cnt = count_monsters()
     d, p = map(int, input().split())
 
-    #1. 플레이어의 공격
-    ci, cj = N//2, N//2
-    for _ in range (p):
-        ni = ci + didj[d][0]
-        nj = cj + didj[d][1]
-        # 1.1 점수 계산
-        total_score += arr[ni][nj]
-        arr[ni][nj] = 0
-        ci = ni
-        cj = nj
+    #[1] 플레이어의 공격
+    kill_monsters(d, p)
 
-    #2. 몬스터들 꺼내오기
-    monsters = []
-    get_monster()
+    monsters_lst = get_snail()
 
-    #3. 몬스터 반복적으로 죽이기
-    #3.1 점수 계산
-    monsters = delete_monster(monsters[:])
+    #[2] 연쇄적으로 없애기
+    monsters_lst = erase_monster(monsters_lst)
 
-    new_monsters = []
-    visited = [0] * len(monsters)
-    #4. 몬스터 같은 숫자끼리 짝 지어주기
-    for i in range(len(monsters)):
-        if visited[i] == 1:
-            continue
-        tmp_cnt = 1
-        for j in range(i + 1, len(monsters)):
-            if monsters[i] != monsters[j]:
-                break
-            if monsters[i] == monsters[j]:
-                visited[j] = 1
-                tmp_cnt += 1
-        new_monsters.append(tmp_cnt)
-        new_monsters.append(monsters[i])
+    new_lst = []
 
-    monsters = new_monsters
+    new_lst.append([1, monsters_lst[0]])
+    for i in range(1, len(monsters_lst)):
+        if monsters_lst[i] == monsters_lst[i - 1]:
+            new_lst[-1][0] += 1
+        else:
+            new_lst.append([1, monsters_lst[i]])
 
-    #4.1 몬스터가 달팽이보다 크면 뒷부분 잘라주기
-    monsters = monsters[:N*N]
-    monsters = monsters[:len(monsters)] + [0] * (N*N-1 -len(monsters))
+    new_lst = [data for row in new_lst for data in row]
 
-    #5. 몬스터 집어넣기
-    put_monster()
+    #[3] 처리 후 다시 넣기
+    put_snail(new_lst)
 
-print(total_score)
+
+print(ans)
