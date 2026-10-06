@@ -1,345 +1,262 @@
-#엣지: 전사가 없는 경우?
-
 from collections import deque
 
-didj = [(-1, 0), (1, 0), (0, -1), (0, 1)] #상하좌우 0 1 2 3
+def get_M_way(si, sj, ei, ej):
 
-def get_medusa_way(si, sj, ei, ej):
     q = deque()
-    parents = [[[] for _ in range (N)] for _ in range (N)]
-    visited = [[0] * N for _ in range (N)]
-
-    visited[si][sj] = 1
     q.append([si, sj])
-    is_found = False
+
+    visited = [[0] * N for _ in range (N)]
+    visited[si][sj] = 1
+
+    is_reachable = False
+
+    parents = [[[] for _ in range (N)] for _ in range (N)]
 
     while q:
         ci, cj = q.popleft()
 
         if (ci, cj) == (ei, ej):
-            is_found = True
+            is_reachable = True
             break
 
-        for di, dj in ((-1, 0), (1, 0), (0, -1), (0, 1)): #상하좌우
+        for di, dj in ((-1, 0), (1, 0), (0, -1), (0, 1)):
             ni = di + ci
             nj = dj + cj
 
-            if 0 <= ni < N and 0 <= nj < N and arr[ni][nj] == 0 and visited[ni][nj] == 0:
+            if 0 <= ni < N and 0 <= nj < N and visited[ni][nj] == 0 and arr[ni][nj]==0:
                 q.append([ni, nj])
                 visited[ni][nj] = 1
                 parents[ni][nj] = [ci, cj]
 
-    if is_found:
-        path = [[ei, ej]]
-        gi, gj = ei, ej
-        while (gi, gj) != (si, sj):
-            path.append(parents[gi][gj])
-            gi, gj = parents[gi][gj]
-        path.reverse()
-        return path
+    if is_reachable:
+        ways = []
+        ci, cj = ei, ej
+        while (ci, cj) != (si, sj):
+            ways.append([ci, cj])
+            ci, cj = parents[ci][cj]
+
+        ways.reverse()
+        return ways
     else:
         return -1
 
-def get_medusa_sisun(mi, mj, way):
+def freeze(d, si, sj):
     q = deque()
-    sisun = [[0] * N for _ in range (N)]
-    sisun[mi][mj] = 1
-    q.append([mi, mj])
+    q.append([si, sj, 'M'])
 
-    sisun_ijs = set()
+    rocked_cnt = 0
 
-    way_didj = []
-    if way == 0: #상
-        way_didj = [(-1, 0), (-1, -1), (-1, 1)]
-    elif way == 1: #하
-        way_didj = [(1, 0), (1, -1), (1, 1)]
-    elif way == 2: #좌
-        way_didj = [(-1, -1), (0, -1), (1, -1)]
-    elif way == 3: #우
-        way_didj = [(-1, 1), (0, 1), (1, 1)]
+    v = [[0] * N for _ in range (N)]
+    v[si][sj] = 0
 
     while q:
-        ci, cj = q.popleft()
+        ci, cj, who = q.popleft()
 
-        if (mi, mj) != (ci, cj):
-            sisun_ijs.add((ci, cj))
+        if who == 'M':
+            for dd in (d, (d+1)%8, (d-1)%8):
+                ni = ci + didj[dd][0]
+                nj = cj + didj[dd][1]
 
-        for di, dj in way_didj:
-            ni = di + ci
-            nj = dj + cj
+                if 0 <= ni < N and 0 <= nj < N and v[ni][nj] == 0:
+                    if len(cur_state[ni][nj]):
+                        q.append([ni, nj, 'W'])
+                        v[ni][nj] = 1
+                    else:
+                        q.append([ni, nj, 'M'])
+                        v[ni][nj] = 1
 
-            if 0 <= ni < N and 0 <= nj < N and sisun[ni][nj] == 0:
-                q.append([ni, nj])
-                sisun[ni][nj] = 1
+        elif who == 'W':
+            d_lst = []
+            if d == 0:
+                if sj == cj:
+                    d_lst = [d]
+                elif sj < cj:
+                    d_lst = [d, (d + 1) % 8]
+                elif sj > cj:
+                    d_lst = [d, (d - 1) % 8]
+            elif d == 2:
+                if si == ci:
+                    d_lst = [d]
+                elif si < ci:
+                    d_lst = [d, (d + 1) % 8]
+                elif si > ci:
+                    d_lst = [d, (d - 1) % 8]
+            elif d == 4:
+                if sj == cj:
+                    d_lst = [d]
+                elif sj < cj:
+                    d_lst = [d, (d - 1) % 8]
+                elif sj > cj:
+                    d_lst = [d, (d + 1) % 8]
+            elif d == 6:
+                if si == ci:
+                    d_lst = [d]
+                elif si < ci:
+                    d_lst = [d, (d - 1) % 8]
+                elif si > ci:
+                    d_lst = [d, (d + 1) % 8]
 
-    sisun[mi][mj] = 0
+            for dd in d_lst:
+                ni = ci + didj[dd][0]
+                nj = cj + didj[dd][1]
 
-    # print(f"메두사 시선 {way}로 발사")
-    # for row in sisun:
+                if 0 <= ni < N and 0 <= nj < N and v[ni][nj] <= 1:
+                    q.append([ni, nj, 'W'])
+                    v[ni][nj] = 2
+
+    # print()
+    # for row in v:
     #     print(*row)
-    #
-    # print("메두사 시선 쏜 곳 좌표들")
-    # print(sisun_ijs)
-    # print()
 
-    return sisun_ijs
+    # 돌 된 애들 세기
+    for i, j in warriors_ijs.values():
+        if v[i][j] == 1:
+            rocked_cnt += 1
 
-def warriors_bfs(wi, wj, medusa_way, warrior_way): #메두사가 보는 방향, warrior가 뒤로 나가는 방향
-    q = deque()
-    wvisited = [[0] * N for _ in range (N)]
-    wvisited[wi][wj] = 1
-    q.append([wi, wj])
+    return rocked_cnt, d, v
 
-    w_back_ijs = set()
+def change_dir(d):
+    if d == 0:
+        return 0
+    elif d == 2:
+        return 6
+    elif d == 4:
+        return 2
+    elif d == 6:
+        return 4
 
-    way_didj = []
-    if medusa_way == 0 and warrior_way == 2: #상 & 왼쪽
-        way_didj = [(-1, 0), (-1, -1)]
-    elif medusa_way == 0 and warrior_way == 3: #상 & 오른쪽
-        way_didj = [(-1, 0), (-1, 1)]
-    elif medusa_way == 1 and warrior_way == 2: #하 & 왼쪽
-        way_didj = [(1, 0), (1, -1)]
-    elif medusa_way == 1 and warrior_way == 3: #하 & 오른쪽
-        way_didj = [(1, 0), (1, 1)]
+def cal_distance(r1, c1, r2, c2):
+    return abs(r1-r2) + abs(c1-c2)
 
-    elif medusa_way == 2 and warrior_way == 0: #좌 & 위
-        way_didj = [(0, -1), (-1, -1)]
-    elif medusa_way == 2 and warrior_way == 1: #좌 & 아래
-        way_didj = [(0, -1), (1, -1)]
-    elif medusa_way == 3 and warrior_way == 0: #우 & 위
-        way_didj = [(0, 1), (-1, 1)]
-    elif medusa_way == 3 and warrior_way == 1: #우 & 아래
-        way_didj = [(0, 1), (1, 1)]
+didj = [(-1, 0), (-1, 1), (0, 1), (1, 1), (1, 0), (1, -1), (0, -1), (-1, -1)]
 
-    while q:
-        ci, cj = q.popleft()
-
-        if (ci, cj) != (wi, wj): #시작점은 안 넣어.
-            w_back_ijs.add((ci, cj))
-
-        for di, dj in way_didj:
-            ni = di + ci
-            nj = dj + cj
-
-            if 0 <= ni < N and 0 <= nj < N and wvisited[ni][nj] == 0:
-                q.append([ni, nj])
-                wvisited[ni][nj] = 1
-
-    # print(f"{wi}, {wj}가 막아주는 곳:")
-    # print(w_back_ijs)
-
-    return w_back_ijs
-
-def exclude_medusa_sisun(mi, mj, ijs, way):
-
-    excluded_ijs = []
-
-    for w in range (len(warriors_ijs)):
-
-        #죽은 애들은 그냥 넘어가고
-        if dead_warriors[w]:
-            continue
-
-        #좀 걱정되는 부분.. 시간 터지려나.. 최대 300명인디..
-        if (warriors_ijs[w][0], warriors_ijs[w][1]) in ijs: #메두사의 시선 안에 있는 녀석들만.
-            #상
-            if way == 0:
-                if warriors_ijs[w][1] == mj: #같은 열에 있으면..
-                    for i in range (warriors_ijs[w][0]-1, -1, -1):
-                        excluded_ijs.append((i, mj))
-                else: #다른 열인데 메두사의 시선 안에 있는 거임.
-                    if warriors_ijs[w][1] < mj: #왼
-                        excluded_ijs += warriors_bfs(warriors_ijs[w][0], warriors_ijs[w][1], 0, 2)
-                    else:
-                        excluded_ijs += warriors_bfs(warriors_ijs[w][0], warriors_ijs[w][1], 0, 3)
-            #하
-            elif way == 1:
-                if warriors_ijs[w][1] == mj:  # 같은 열에 있으면..
-                    for i in range(warriors_ijs[w][0] + 1, N):
-                        excluded_ijs.append((i, mj))
-                else: #다른 열인데 메두사의 시선 안에 있는 거임.
-                    if warriors_ijs[w][1] < mj:  # 왼
-                        excluded_ijs += warriors_bfs(warriors_ijs[w][0], warriors_ijs[w][1], 1, 2)
-                    else:
-                        excluded_ijs += warriors_bfs(warriors_ijs[w][0], warriors_ijs[w][1], 1, 3)
-            #좌
-            elif way == 2:
-                if warriors_ijs[w][0] == mi:  # 같은 행에 있으면..
-                    for j in range(warriors_ijs[w][1] - 1, -1, -1):
-                        excluded_ijs.append((mi, j))
-                else:  # 다른 행인데 메두사의 시선 안에 있는 거임.
-                    if warriors_ijs[w][0] < mi:  #위
-                        excluded_ijs += warriors_bfs(warriors_ijs[w][0], warriors_ijs[w][1], 2, 0)
-                    else: #아래
-                        excluded_ijs += warriors_bfs(warriors_ijs[w][0], warriors_ijs[w][1], 2, 1)
-            #우
-            elif way == 3:
-                if warriors_ijs[w][0] == mi:  # 같은 행에 있으면..
-                    for j in range(warriors_ijs[w][1] + 1, N):
-                        excluded_ijs.append((mi, j))
-                else:  # 다른 행인데 메두사의 시선 안에 있는 거임.
-                    if warriors_ijs[w][0] < mi:  # 위
-                        excluded_ijs += warriors_bfs(warriors_ijs[w][0], warriors_ijs[w][1], 3, 0)
-                    else:  # 아래
-                        excluded_ijs += warriors_bfs(warriors_ijs[w][0], warriors_ijs[w][1], 3, 1)
-
-    # print("전사들이 막아주는 좌표들")
-    # print(excluded_ijs)
-    excluded_ijs = set(excluded_ijs)
-    ijs = ijs - excluded_ijs
-    warriors_cnt = 0
-    warriors_lst = []
-
-    # print("메두사가 진짜로 멈출 수 있는 좌표들만")
-    # print(ijs)
-    # print()
-
-    for w in range (len(warriors_ijs)):
-        # 죽은 애들은 그냥 넘어가고
-        if dead_warriors[w]:
-            continue
-        else:
-            if (warriors_ijs[w][0], warriors_ijs[w][1]) in ijs:
-                warriors_cnt += 1
-                warriors_lst.append(w)
-
-    # print("여기로 간다면 잡히는 애들")
-    # print(warriors_lst)
-    return warriors_cnt, warriors_lst, ijs
-
-def get_distance(i1, j1, i2, j2):
-
-    return abs(i1 - i2) + abs(j1 - j2)
-
-#마을 크기, 전사의 수
 N, M = map(int, input().split())
+Msi, Msj, Mei, Mej = map(int, input().split())
+warriors_ijs = dict()
+cur_state = [[[] for _ in range (N)] for _ in range (N)]
 
-#메두사 집, 공원
-si, sj, ei, ej = map(int, input().split())
-
-#M명의 전사들의 좌표
-warriors_ijs = []
-tmp = list(map(int, input().split()))
-for _ in range (M):
-    nt = tmp[:2]
-    tmp = tmp[2:]
-    warriors_ijs.append(nt)
-
-dead_warriors = [False] * M
+tmp_lst = list(map(int, input().split()))
+for m in range (1, M+1):
+    warriors_ijs[m] = tmp_lst[:2]
+    tmp_lst = tmp_lst[2:]
 
 arr = [list(map(int, input().split())) for _ in range (N)]
+ways = get_M_way(Msi, Msj, Mei, Mej)
 
-#[1] 메두사의 경로 찾기..
-res_path = get_medusa_way(si, sj, ei, ej)
-#-1이면 경로가 없는 거다. -> 근데 이걸 처음에 출력하라는 거야 뭐야
-# 처음에 -1 출력하고 끝내는 거 맞는 것 같음.
+#현재 상태 표시하기 (전사들)
+for w in warriors_ijs.keys():
+    i, j = warriors_ijs[w]
+    cur_state[i][j].append(w)
 
-mi, mj = si, sj #메두사 현재 경로
+# for row in cur_state:
+#     print(*row)
 
-if res_path != -1:
-    #전사들이 초기부터 메두사의 집에 위치하지는 않기 때문에 안심하고 첫 경로 보낼게.
-    for p in range (1, len(res_path)):
-
-        stopped_warriors = [False] * M #돌 걸린 거 풀어주기
-
-        #[출력해야하는 변수들 준비할게]
-        total_distance = 0
-        stopped_warriors_cnt = 0
-        attacked_warriors_cnt = 0
-
-        mi, mj = res_path[p]
-
-        #메두사가 가는 길에 전사가 있으면 걔는 죽는다....
-        for w in range(len(warriors_ijs)):
-            if (mi, mj) == (warriors_ijs[w][0], warriors_ijs[w][1]):
-                dead_warriors[w] = True
-
-        #도착한 경우 0을 출력하고 끝낸다.
-        if (mi, mj) == (ei, ej):
-            print(0)
-            continue
-
-        # print("메두사 현재 위치")
-        # print(mi, mj)
-
-        #[2] 메두사의 시선
-        hubo = []
-        for d in [0, 1, 2, 3]:
-            total_sisun = get_medusa_sisun(mi, mj, d)
-            cnt, w_lst, medusa_watching = exclude_medusa_sisun(mi, mj, total_sisun, d)
-            hubo.append([d, cnt, w_lst, medusa_watching])
-        hubo = sorted(hubo, key=lambda x: (-x[1], x[0]))
-
-        # print("나는 어디로 갈까?")
-        # print(hubo)
-
-        for i in hubo[0][2]:
-            stopped_warriors[i] = True
-
-        # print("누가 멈췄니")
-        # print(hubo[0][2])
-
-        stopped_warriors_cnt = hubo[0][1] #출력해야됨!
-
-        medusa_real_watching = hubo[0][3]
-
-        tmp_set = set()
-        tmp_set.add((mi, mj))
-
-        medusa_real_watching = medusa_real_watching - tmp_set
-        #[3] 전사들의 이동
-
-        for w in range (len(warriors_ijs)):
-            if dead_warriors[w] or stopped_warriors[w]:
-                continue
-            #첫번째 이동
-            ci, cj = warriors_ijs[w][0], warriors_ijs[w][1]
-            cur_distance = abs(ci - mi) + abs(cj - mj)
-            for di, dj in ((-1, 0), (1, 0), (0, -1), (0, 1)):
-                ni = di + ci
-                nj = dj + cj
-
-                if 0 <= ni < N and 0 <= nj < N:
-                    if not (ni, nj) in medusa_real_watching and get_distance(mi, mj, ni, nj) < cur_distance:
-                        ci, cj = ni, nj
-                        total_distance += 1
-                        break
-            #두번째 이동
-            for di, dj in ((0, -1), (0, 1), (-1, 0), (1, 0)):
-                ni = di + ci
-                nj = dj + cj
-
-                if 0 <= ni < N and 0 <= nj < N:
-                    if not (ni, nj) in medusa_real_watching and get_distance(mi, mj, ni, nj) < cur_distance:
-                        ci, cj = ni, nj
-                        total_distance += 1
-                        break
-
-            warriors_ijs[w][0], warriors_ijs[w][1] = ci, cj #값 갱신
-
-        # print("전사들의 위치")
-        # print(warriors_ijs)
-        # print("전사들이 멈췄는지")
-        # print(stopped_warriors)
-
-        # print(warriors_ijs)
-        #[4] 전사의 공격
-        for w in range (len(warriors_ijs)):
-            if dead_warriors[w] or stopped_warriors[w]:
-                continue
-
-            if (mi, mj) == (warriors_ijs[w][0], warriors_ijs[w][1]):
-                dead_warriors[w] = True
-                attacked_warriors_cnt += 1
-
-        # print("전사들이 죽었는지")
-        # print(dead_warriors)
-
-        # print("답!!!")
-        print(total_distance, stopped_warriors_cnt, attacked_warriors_cnt)
-
-
-
-        #[5] 출력. 모든 전사의 이동거리 합, 돌이 된 전사의 수, 메두사를 공격한 전사의 수
-else:
+#메두사가 갈 길이 없음.
+if ways == -1:
     print(-1)
+else:
+    for i, j in ways:
+
+        total_distance = 0
+        rock_cnt = 0
+        attacked_cnt = 0
+
+        #메두사 이동함
+        Mci, Mcj = i, j
+        # print(Mci, Mcj)
+
+        if (Mci, Mcj) == (Mei, Mej):
+            print(0)
+            break
+
+        #이동한 곳에 전사가 있다면
+        if len(cur_state[Mci][Mcj]):
+            d_lst = cur_state[Mci][Mcj]
+            cur_state[Mci][Mcj] = []
+            for d in d_lst:
+                warriors_ijs.pop(d)
+
+        hubo = []
+        for d in (0, 2, 4, 6):
+            cnt, d, v = freeze(d, Mci, Mcj)
+            d = change_dir(d)
+            hubo.append([cnt, d, v])
+
+        hubo = sorted(hubo, key=lambda x:(-x[0], x[1]))
+
+        rock_cnt += hubo[0][0]
+        v = hubo[0][2]
+
+        movable_w_lst = []
+        for w in warriors_ijs.keys():
+            i, j = warriors_ijs[w]
+            if v[i][j] != 1:
+                movable_w_lst.append(w)
+
+        # print()
+        # print(movable_w_lst)
+        #
+        # print()
+        # for row in v:
+        #     print(*row)
+
+
+        for w in movable_w_lst:
+            ci, cj = warriors_ijs[w]
+            cur_d = cal_distance(ci, cj, Mci, Mcj)
+
+            for di, dj in ((-1, 0), (1, 0), (0, -1), (0, 1)): #상하좌으
+                ni = ci + di
+                nj = cj + dj
+                next_d = cal_distance(ni, nj, Mci, Mcj)
+
+                if 0 <= ni < N and 0 <= nj < N and v[ni][nj] != 1 and cur_d > next_d:
+                    ci, cj = ni, nj #갱신
+                    warriors_ijs[w] = [ci, cj]
+                    total_distance += 1
+                    break
+            #다 돌았는데 못 감.
+            else:
+                continue
+
+            cur_d = cal_distance(ci, cj, Mci, Mcj)
+            for di, dj in ((0, -1), (0, 1), (-1, 0), (1, 0)):  # 좌우상하
+                ni = ci + di
+                nj = cj + dj
+                next_d = cal_distance(ni, nj, Mci, Mcj)
+
+                if 0 <= ni < N and 0 <= nj < N and v[ni][nj] != 1 and cur_d > next_d:
+                    ci, cj = ni, nj  # 갱신
+                    warriors_ijs[w] = [ci, cj]
+                    total_distance += 1
+                    break
+            # 다 돌았는데 못 감.
+            else:
+                continue
+
+        new_cur_state = [[[] for _ in range (N)] for _ in range (N)]
+        # 현재 상태 표시하기 (전사들)
+        for w in warriors_ijs.keys():
+            i, j = warriors_ijs[w]
+            new_cur_state[i][j].append(w)
+
+        cur_state = new_cur_state
+
+        if len(cur_state[Mci][Mcj]):
+            attacked_cnt += len(cur_state[Mci][Mcj])
+            d_lst = cur_state[Mci][Mcj]
+            cur_state[Mci][Mcj] = []
+            for d in d_lst:
+                warriors_ijs.pop(d)
+
+        # for row in cur_state:
+        #     print(*row)
+
+
+        print(total_distance, rock_cnt, attacked_cnt)
+
+
+
+
+
+
