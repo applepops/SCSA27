@@ -27,7 +27,6 @@ def pick_santa_and_move(si, sj):
         hubo.append([now_distance, r, c, santa])
 
     hubo = sorted(hubo, key=lambda x: (x[0], -x[1], -x[2]))
-
     mokpyo_i, mokpyo_j = hubo[0][1], hubo[0][2]
     cur_distance = hubo[0][0]
 
@@ -62,7 +61,6 @@ def move_santa(si, sj, ri, rj):
     if way_hubo:
         return way_hubo[0][-2], way_hubo[0][-1], way_hubo[0][-3]
     else: #갈 곳이 없으면 안 움직여버려.
-
         return si, sj, -1
 
 def go_till_end(santa_num, si, sj, d):
@@ -94,22 +92,13 @@ for p in range (1, P+1):
     num, r, c = map(int, input().split())
     santa_info[num] = [r-1, c-1, 0] #위치, state(defalut: 0)
 
-
-# print(santa_info)
-
 update_santa_arr()
-
-# print()
-# for row in santa_arr:
-#     print(*row)
 
 #######################
 # [실행부]
 #######################
 for k in range (1, K+1):
-    # print()
-    # print(f"{k}턴")
-    # print()
+
     #[종료조건]:
     dead_santa_cnt = 0
     for santa in range (1, P+1):
@@ -121,7 +110,6 @@ for k in range (1, K+1):
 
     #[1] 루돌프의 움직임
     Ri, Rj, R_d = pick_santa_and_move(Ri, Rj)
-    # print(f"루돌프 위치 {Ri} {Rj}")
 
     #[2] 루돌프의 움직임으로 인한 충돌?
     #산타 기절 처리
@@ -138,19 +126,10 @@ for k in range (1, K+1):
         go_till_end(now_santa, s_ni, s_nj, R_d)
         update_santa_arr()
 
-        # for row in santa_arr:
-        #     print(*row)
-
-    # print("루돌프가 이동/밀기하고 나서 산타 상태들")
-    # print(santa_info)
-    # for row in santa_arr:
-    #     print(*row)
-
     #[4] 산타의 순차 움직임
     for santa in range (1, P+1):
         r, c, state = santa_info[santa]
         if 0 <= state <= k: #미탈락, 미기절
-            # print(f"{santa}번 산타 움직임")
             nr, nc, nd = move_santa(r, c, Ri, Rj)
             if nd == -1:
                 continue
@@ -174,15 +153,11 @@ for k in range (1, K+1):
                 go_till_end(santa, s_ni, s_nj, (nd+2)%4)
             update_santa_arr()
 
-    # print("산타 순차 움직임 후")
-    # print(santa_info)
     #[6] 기절 안 한 산타는 1씩 점수 얻음
     for santa in list(santa_info.keys()):
         r, c, state = santa_info[santa]
         if state >= 0:
             santa_score[santa] += 1
 
-# print()
-# print("점수")
 for i in range (1, P+1):
     print(santa_score[i], end=" ")
