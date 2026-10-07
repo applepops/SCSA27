@@ -18,6 +18,7 @@ def cal_distance(r1, c1, r2, c2):
 def pick_santa_and_move(si, sj):
 
     hubo = []
+
     for santa in santa_info.keys():
         r, c, state = santa_info[santa]
         if state == -1: #탈락한 산타 제외
@@ -61,6 +62,7 @@ def move_santa(si, sj, ri, rj):
     if way_hubo:
         return way_hubo[0][-2], way_hubo[0][-1], way_hubo[0][-3]
     else: #갈 곳이 없으면 안 움직여버려.
+
         return si, sj, -1
 
 def go_till_end(santa_num, si, sj, d):
@@ -94,7 +96,9 @@ for p in range (1, P+1):
 
 
 # print(santa_info)
+
 update_santa_arr()
+
 # print()
 # for row in santa_arr:
 #     print(*row)
@@ -108,7 +112,7 @@ for k in range (1, K+1):
     # print()
     #[종료조건]:
     dead_santa_cnt = 0
-    for santa in list(santa_info.keys()):
+    for santa in range (1, P+1):
         r, c, state = santa_info[santa]
         if state == -1:
             dead_santa_cnt += 1
@@ -133,6 +137,7 @@ for k in range (1, K+1):
         #[3] 루돌프의 움직임으로 인한 연쇄반응
         go_till_end(now_santa, s_ni, s_nj, R_d)
         update_santa_arr()
+
         # for row in santa_arr:
         #     print(*row)
 
@@ -142,7 +147,7 @@ for k in range (1, K+1):
     #     print(*row)
 
     #[4] 산타의 순차 움직임
-    for santa in list(santa_info.keys()):
+    for santa in range (1, P+1):
         r, c, state = santa_info[santa]
         if 0 <= state <= k: #미탈락, 미기절
             # print(f"{santa}번 산타 움직임")
@@ -154,7 +159,6 @@ for k in range (1, K+1):
                 santa_info[santa][0] = nr
                 santa_info[santa][1] = nc
                 update_santa_arr()
-
 
             #[5] 산타의 움직임으로 인한 충돌?
             #산타 기절 처리
@@ -177,11 +181,6 @@ for k in range (1, K+1):
         r, c, state = santa_info[santa]
         if state >= 0:
             santa_score[santa] += 1
-
-    # for row in santa_arr:
-    #     print(*row)
-
-
 
 # print()
 # print("점수")
