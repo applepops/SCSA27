@@ -1,238 +1,186 @@
-#산타때문에 상우하좌만 지키고 나머지는 걍 아무렇게나 씀.
 didj = [(-1, 0), (0, 1), (1, 0), (0, -1), (1, 1), (-1, -1), (1, -1), (-1, 1)]
 
-#가장 가까운 산타를 알아와
-def choose_santa():
-    hubo = [] #산타 번호, 거리, R, C
-    for santa in range (1, P+1):
-        if dead_santa[santa]:
+def update_santa_arr():
+    global santa_arr
+
+    new_santa_arr = [[0] * N for _ in range (N)]
+
+    for santa in list(santa_info.keys()):
+        r, c, state = santa_info[santa]
+        if state >= 0:
+            new_santa_arr[r][c] = santa
+
+    santa_arr = new_santa_arr
+
+def cal_distance(r1, c1, r2, c2):
+    return abs(r1-r2)**2 + abs(c1-c2)**2
+
+def pick_santa_and_move(si, sj):
+
+    hubo = []
+    for santa in santa_info.keys():
+        r, c, state = santa_info[santa]
+        if state == -1: #탈락한 산타 제외
             continue
-        si = santa_ijs[santa][0]
-        sj = santa_ijs[santa][1]
-        distance = abs(deer_ij[0] - si) * abs(deer_ij[0] - si) + abs(deer_ij[1] - sj) * abs(deer_ij[1] - sj)
-        hubo.append([santa, distance, si, sj])
+        now_distance = cal_distance(si, sj, r, c)
+        hubo.append([now_distance, r, c, santa])
 
-    hubo = sorted(hubo, key=lambda x: (x[1], -x[2], -x[3]))
-    return hubo[0][0] #목표로 하는 산타 번호를 return
+    hubo = sorted(hubo, key=lambda x: (x[0], -x[1], -x[2]))
 
-#갈 수 있는 8방향 조사해서 가까워지는 방향으로 간 다음 좌표 반환
-def go_to_santa(si, sj):
-    distance_by_way = []
-    for d in range (8):
-        ni = deer_ij[0] + didj[d][0]
-        nj = deer_ij[1] + didj[d][1]
-        if 0 <= ni < N and 0 <= nj < N:
-            distance = abs(ni - si) * abs(ni - si) + abs(nj - sj) * abs(nj - sj)
-            distance_by_way.append(distance)
+    mokpyo_i, mokpyo_j = hubo[0][1], hubo[0][2]
+    cur_distance = hubo[0][0]
 
-        else:
-            distance_by_way.append(float("inf"))
+    way_hubo = []
 
-    min_distance = min(distance_by_way)
-    next_way = distance_by_way.index(min_distance)
+    for d in range(8):
+        ni = si + didj[d][0]
+        nj = sj + didj[d][1]
+        next_distance = cal_distance(ni, nj, mokpyo_i, mokpyo_j)
 
-    #루돌프 좌표 갱신했다.
-    deer_ij[0], deer_ij[1] = deer_ij[0] + didj[next_way][0], deer_ij[1] + didj[next_way][1]
+        if 0 <= ni < N and 0 <= nj < N and cur_distance > next_distance:
+            way_hubo.append([next_distance, ni, nj, d])
 
-    return next_way
+    way_hubo = sorted(way_hubo, key=lambda x: (x[0]))
+    #루돌프의 다음 좌표를 반환
+    return way_hubo[0][1], way_hubo[0][2], way_hubo[0][-1]
 
-#연쇄 상호작용
-def effect_others(si, sj, d):
+def move_santa(si, sj, ri, rj):
+    cur_distance = cal_distance(si, sj, ri, rj)
+
+    way_hubo = []
+
+    for d in range(4):
+        ni = si + didj[d][0]
+        nj = sj + didj[d][1]
+        next_distance = cal_distance(ni, nj, ri, rj)
+
+        if 0 <= ni < N and 0 <= nj < N and santa_arr[ni][nj] == 0 and cur_distance > next_distance:
+            way_hubo.append([next_distance, d, ni, nj])
+
+    way_hubo = sorted(way_hubo, key=lambda x: (x[0], x[1]))
+    if way_hubo:
+        return way_hubo[0][-2], way_hubo[0][-1], way_hubo[0][-3]
+    else: #갈 곳이 없으면 안 움직여버려.
+        return si, sj, -1
+
+def go_till_end(santa_num, si, sj, d):
 
     while True:
-        #착지하게 되는 칸에 다른 산타가 있다면..
-        if santa_arr[si][sj] != 0:
-            pushed_santa = santa_arr[si][sj]
-            #한 칸 밀려나게 되는 것이다
-            ni, nj = santa_ijs[pushed_santa][0] + didj[d][0], santa_ijs[pushed_santa][1] + didj[d][1]
+        if not (0 <= si < N and 0 <= sj < N): #범위 나갔음.
+            santa_info[santa_num] = [si, sj, -1]
+            break
 
-            if 0 <= ni < N and 0 <= nj < N: #그 밀려난 칸이 격자 이내면 계속 간다.
-                santa_ijs[pushed_santa][0], santa_ijs[pushed_santa][1] = ni, nj
-            else: #격자 밖이면 그 밀려난 산타는 죽는다. 그리고 더 밀려날 애들도 없다는 뜻이지.
-                dead_santa[pushed_santa] = True
-                return
+        #범위 안 나감
+        if santa_arr[si][sj] == 0: #연쇄이동 없음
+            break
+        else: #연쇄이동 있음
+            santa_num = santa_arr[si][sj]
+            si, sj = si + didj[d][0], sj + didj[d][1]
+            santa_info[santa_num][0] = si
+            santa_info[santa_num][1] = sj
 
-            si, sj = santa_ijs[pushed_santa][0], santa_ijs[pushed_santa][1]
-
-        else:
-            return
-
-#갈 수 있는 4방향 조사해서 루돌프에 가까워지는 방향으로 간 다음 좌표 반환
-#다 inf면 가지말고 그냥 유지
-def go_to_deer(s_num):
-    si_ = santa_ijs[s_num][0]
-    sj_ = santa_ijs[s_num][1]
-    cur_distance = abs(deer_ij[0] - si_) * abs(deer_ij[0] - si_) + abs(deer_ij[1] - sj_) * abs(deer_ij[1] - sj_)
-
-    distance_by_way = [] #거리랑 방향 순이다.
-    #다른 산타가 없는 곳이어야 함. 범위 내여야 함.
-    # 현재 거리를 알아야 함. 가까워질 수 없으면 굳이 안 움직임.
-    for d in range(4):
-        ni, nj = si_ + didj[d][0], sj_ + didj[d][1]
-        if 0 <= ni < N and 0 <= nj < N and santa_arr[ni][nj] == 0:
-            now_distance = abs(deer_ij[0] - ni) * abs(deer_ij[0] - ni) + abs(deer_ij[1] - nj) * abs(deer_ij[1] - nj)
-            if now_distance >= cur_distance:
-                distance_by_way.append([float("inf"), d])
-            else:
-                distance_by_way.append([now_distance, d])
-        else:
-            distance_by_way.append([float("inf"), d])
-
-    distance_by_way = sorted(distance_by_way, key=lambda x: (x[0], x[1]))
-    # print(distance_by_way)
-    santa_way = distance_by_way[0][1]
-
-    if distance_by_way[0][0] == float("inf"): #이동을 할 수 없는 경우
-        return -1
-    else:
-        #[3.1] 산타 새로운 위치 갱신.
-        santa_ijs[s_num][0], santa_ijs[s_num][1] = santa_ijs[s_num][0] + didj[santa_way][0], santa_ijs[s_num][1] + didj[santa_way][1]
-        return santa_way
-
-#산타 좌표 갱신
-def save_santa_ij():
-    for i in range (N):
-        for j in range (N):
-            santa_arr[i][j] = 0
-
-    for santa in range (1, P+1):
-        if dead_santa[santa]:
-            continue
-        santa_arr[santa_ijs[santa][0]][santa_ijs[santa][1]] = santa
-
-def custom_print():
-    print("======산타 현재 위치======")
-    for row in santa_arr:
-        print(*row)
-    print("========================")
-    print(f"루돌프 위치: {deer_ij[0]} {deer_ij[1]}")
-
-#[입력받기]
-#N*N, M개의 턴, P명의 산타, 루돌프의 힘, 산타의 힘.
-N, M, P, C, D = map(int, input().split())
-ri, rj = map(int, input().split())
-deer_ij = [ri-1, rj-1]
-santa_ijs = [[] for _ in range (P+1)] #1번부터 할게. 맨 앞은 더미
-
-for _ in range(P):
-    santa_num, si, sj = map(int, input().split())
-    santa_ijs[santa_num] = [si-1, sj-1]
-
-dead_santa = [False] * (P+1) #죽으면 True
-dead_santa[0] = True
-sleeping_santa = [0] * (P+1) #기절되면 +2 해주기
-santa_score = [0] * (P+1) #점수
-
+#######################
+# [입력받기]
+#######################
+N, K, P, C, D = map(int, input().split())
+Ri, Rj = map(lambda x: int(x)-1, input().split())
+santa_info = dict()
 santa_arr = [[0] * N for _ in range (N)]
-save_santa_ij() #기초공사
+santa_score = [0] * (P+1) #맨앞은 더미
 
-# custom_print() #지워라
+for p in range (1, P+1):
+    num, r, c = map(int, input().split())
+    santa_info[num] = [r-1, c-1, 0] #위치, state(defalut: 0)
 
-#M턴 동안 반복한다.
-for m in range (M):
+
+# print(santa_info)
+# update_santa_arr()
+# print()
+# for row in santa_arr:
+#     print(*row)
+
+#######################
+# [실행부]
+#######################
+for k in range (1, K+1):
     # print()
-    # print(f"{m+1}턴입니다")
-
-    #[1] 루돌프 움직임.
-    #[1.1] 가장 가까운 산타를 알아온다.
-    this_santa = choose_santa()
-    # print(f"이번에 잡는 산타: {this_santa}")
-
-    #[1.2] 루돌프가 이동한다. -> 루돌프 이동방향을 받는다.
-    deer_way = go_to_santa(santa_ijs[this_santa][0], santa_ijs[this_santa][1])
-    # print(f"루돌프 이동: {deer_ij[0]} {deer_ij[1]}")
-
-    #[1.3] 루돌프 위치 갱신한다. #go_to_santa에서 함.
-
-    #[2] 루돌프 이동으로 인한 충돌 확인
-    if santa_arr[deer_ij[0]][deer_ij[1]] != 0:
-        # [2.1] 도착 칸에 산타 있으면 산타 점수 올려주고 산타 이동시킴, 좌표 갱신.
-        illed_santa = santa_arr[deer_ij[0]][deer_ij[1]]
-        santa_score[illed_santa] += C
-
-        n_si, n_sj = santa_ijs[illed_santa][0] + didj[deer_way][0] * C, santa_ijs[illed_santa][1] + didj[deer_way][1]*C
-        #좌표 내
-        if 0 <= n_si < N and 0 <= n_sj < N:
-            santa_ijs[illed_santa][0], santa_ijs[illed_santa][1] = n_si, n_sj
-
-            # [2.2] 산타 기절시키기
-            sleeping_santa[illed_santa] = 2 #[주의]: 기절한 상태에서 또 부딪히면.. 어떻게 되는 거지... 기절이 쌓이나..
-
-            # [2.3] 연쇄상호작용 확인.
-            effect_others(santa_ijs[illed_santa][0], santa_ijs[illed_santa][1], deer_way)
-
-        else:
-            #산타 죽이기
-            dead_santa[illed_santa] = True
-
-    # [2.4] 좌표 갱신
-    save_santa_ij()
-    # custom_print()
-
-    #[3] 산타가 순서대로 움직임. 죽거나 기절 안한 산타만 움직임.
-    for s in range (1, P+1):
-        if dead_santa[s] or sleeping_santa[s] > 0:
-            continue
-        # print(f"{s} 산타가 이동할 거임.")
-        santa_next_way = go_to_deer(s)
-        if santa_next_way == -1:
-            continue
-        else:
-            save_santa_ij() #좌표 갱신
-
-            #[4] 산타 이동으로 인한 충돌 확인
-            if (santa_ijs[s][0], santa_ijs[s][1]) == (deer_ij[0], deer_ij[1]):
-                #[4.1] 도착 칸에 루돌프 있으면 산타 점수 올려주고 산타 이동시킴. 좌표 계산.
-                santa_next_way = (santa_next_way + 2) % 4 #반대로 가야지
-                santa_score[s] += D
-                n_si, n_sj = santa_ijs[s][0] + didj[santa_next_way][0] * D, santa_ijs[s][1] + \
-                             didj[santa_next_way][1] * D
-                # 좌표 내
-                if 0 <= n_si < N and 0 <= n_sj < N:
-                    santa_ijs[s][0], santa_ijs[s][1] = n_si, n_sj
-
-                    #[4.2] 산타 기절시키기
-                    sleeping_santa[s] = 2  # [주의]: 기절한 상태에서 또 부딪히면.. 어떻게 되는 거지... 기절이 쌓이나..
-
-                    # [4.3] 연쇄상호작용 확인.
-                    effect_others(santa_ijs[s][0], santa_ijs[s][1], santa_next_way)
-
-                else:
-                    # 산타 죽이기
-                    dead_santa[s] = True
-
-            # [4.4] 좌표 갱신
-            save_santa_ij()
-        # custom_print()
-
-    #[5] 기절한 애들 턴 1씩 줄여주기
-    for k in range(1, P+1):
-        if sleeping_santa[k] > 0:
-            sleeping_santa[k] -= 1
-
-    # print("기절한 애들")
-    # print(sleeping_santa)
-
-    # print("죽은 애들")
-    # print(dead_santa)
-
-    #[6] 살아있는 애들 점수 주기
-    for k in range (1, P+1):
-        if not dead_santa[k]:
-            santa_score[k] += 1
-
-    # print(f"현재 {m+1}턴의 점수")
-    # print(santa_score)
-
-    #[7] 종료조건 확인하기, 해당되면 break
-    cnt = 0
-    for i in range (1, P+1):
-        if dead_santa[i]:
-            cnt += 1
-
-    if cnt == P:
+    # print(f"{k}턴")
+    # print()
+    #[종료조건]:
+    dead_santa_cnt = 0
+    for santa in list(santa_info.keys()):
+        r, c, state = santa_info[santa]
+        if state == -1:
+            dead_santa_cnt += 1
+    if dead_santa_cnt == P:
         break
 
+    #[1] 루돌프의 움직임
+    Ri, Rj, R_d = pick_santa_and_move(Ri, Rj)
+    # print(f"루돌프 위치 {Ri} {Rj}")
 
-for score in range (1, P+1):
-    print(santa_score[score], end=" ")
+    #[2] 루돌프의 움직임으로 인한 충돌?
+    #산타 기절 처리
+    if santa_arr[Ri][Rj] != 0: #지금 누군가가 있음
+        now_santa = santa_arr[Ri][Rj]
+        santa_score[now_santa] += C #점수 획득
+
+        s_ni = Ri + didj[R_d][0] * C #밀려나기
+        s_nj = Rj + didj[R_d][1] * C
+
+        santa_info[now_santa] = [s_ni, s_nj, k+2] #기절과 갱신
+
+        #[3] 루돌프의 움직임으로 인한 연쇄반응
+        go_till_end(now_santa, s_ni, s_nj, R_d)
+        update_santa_arr()
+        # for row in santa_arr:
+        #     print(*row)
+
+    # print("루돌프가 이동/밀기하고 나서 산타 상태들")
+    # print(santa_info)
+    # for row in santa_arr:
+    #     print(*row)
+
+    #[4] 산타의 순차 움직임
+    for santa in list(santa_info.keys()):
+        r, c, state = santa_info[santa]
+        if 0 <= state <= k: #미탈락, 미기절
+            # print(f"{santa}번 산타 움직임")
+            nr, nc, nd = move_santa(r, c, Ri, Rj)
+            if nd == -1:
+                continue
+            else:
+                #움직였음..
+                santa_info[santa][0] = nr
+                santa_info[santa][1] = nc
+
+            #[5] 산타의 움직임으로 인한 충돌?
+            #산타 기절 처리
+            if (nr, nc) == (Ri, Rj): #루돌프와 충돌!
+                santa_score[santa] += D  # 점수 획득
+
+                s_ni = Ri + didj[(nd+2)%4][0] * D  # 밀려나기
+                s_nj = Rj + didj[(nd+2)%4][1] * D
+
+                santa_info[santa] = [s_ni, s_nj, k + 2] #기절과 갱신
+                # [5] 산타의 움직임으로 인한 연쇄반응
+                go_till_end(santa, s_ni, s_nj, (nd+2)%4)
+            update_santa_arr()
+
+    # print("산타 순차 움직임 후")
+    # print(santa_info)
+    #[6] 기절 안 한 산타는 1씩 점수 얻음
+    for santa in list(santa_info.keys()):
+        r, c, state = santa_info[santa]
+        if state >= 0:
+            santa_score[santa] += 1
+
+    # for row in santa_arr:
+    #     print(*row)
+
+
+
+# print()
+# print("점수")
+for i in range (1, P+1):
+    print(santa_score[i], end=" ")
