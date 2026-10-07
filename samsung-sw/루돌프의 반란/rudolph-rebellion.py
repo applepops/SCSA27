@@ -94,7 +94,7 @@ for p in range (1, P+1):
 
 
 # print(santa_info)
-# update_santa_arr()
+update_santa_arr()
 # print()
 # for row in santa_arr:
 #     print(*row)
@@ -153,6 +153,8 @@ for k in range (1, K+1):
                 #움직였음..
                 santa_info[santa][0] = nr
                 santa_info[santa][1] = nc
+                update_santa_arr()
+
 
             #[5] 산타의 움직임으로 인한 충돌?
             #산타 기절 처리
@@ -161,6 +163,7 @@ for k in range (1, K+1):
 
                 s_ni = Ri + didj[(nd+2)%4][0] * D  # 밀려나기
                 s_nj = Rj + didj[(nd+2)%4][1] * D
+                update_santa_arr()
 
                 santa_info[santa] = [s_ni, s_nj, k + 2] #기절과 갱신
                 # [5] 산타의 움직임으로 인한 연쇄반응
