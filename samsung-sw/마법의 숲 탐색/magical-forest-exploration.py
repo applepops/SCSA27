@@ -135,7 +135,7 @@ for k in range (1, K+1):
             break
 
     mr, mc, md = monster_info[k]
-    if 0 <= mr < 3:
+    if 0 <= mr < 4:
         reset_forest()
         monster_info = dict() #초기화
         continue
