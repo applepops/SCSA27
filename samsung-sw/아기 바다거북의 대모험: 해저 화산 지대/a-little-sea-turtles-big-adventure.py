@@ -1,195 +1,173 @@
 from collections import deque
 
-didj = [(0, 1), (1, 0), (0, -1), (-1, 0)]
+didj = [(0, 1), (1, 0), (0, -1), (-1, 0)] #우하좌상
 
-def move_turtle(si, sj, ei, ej):
-    q = deque()
+def bfs(si, sj):
     is_found = False
+    q = deque()
+    q.append([si, sj])
+
+    visited =[[0] * N for _ in range(N)]
+    visited[si][sj] = 1
 
     parents = [[[] for _ in range (N)] for _ in range (N)]
-    visited = [[0] * N for _ in range (N)]
-
-    q.append([si, sj])
-    visited[si][sj] = 1
 
     while q:
         ci, cj = q.popleft()
 
-        if (ci, cj) == (ei, ej):
+        if (ci, cj) == (N-1, N-1):
             is_found = True
             break
 
         for di, dj in didj:
-            ni = di + ci
-            nj = dj + cj
-
-            if 0 <= ni < N and 0 <= nj < N and visited[ni][nj] == 0:
-
-                if ocean[ni][nj] == 1:
-                    continue
-
-                if turtle_arr[ni][nj] != 0:
-                    continue
-
+            ni = ci + di
+            nj = cj + dj
+            if 0 <= ni < N and 0 <= nj < N and visited[ni][nj] == 0 and arr[ni][nj] == 0 and turtle_arr[ni][nj] == 0:
                 q.append([ni, nj])
                 visited[ni][nj] = 1
-
                 parents[ni][nj] = [ci, cj]
 
-    if not is_found:
-        return si, sj
+    if is_found:
+        ways = []
+        while (ci, cj) != (si, sj):
+            ways.append([ci, cj])
+            ci, cj = parents[ci][cj]
+        ways.reverse()
+        return ways[0][0], ways[0][1]
 
     else:
+        return si, sj
 
-        route = []
-
-        i, j = ei, ej
-        route.append((i, j))
-        while (i, j) != (si, sj):
-            i, j = parents[i][j]
-            route.append((i, j))
-        route.reverse()
-        route.pop(0)
-        return route[0][0], route[0][1]
-
-
-def eruption():
+def explode():
     q = deque()
-    erupted = set()
+    lst = set()
 
-    # 처음 분출하는 화산
-    for r, c in volcano_info:
-        amount = volcano_info[(r, c)]
-
-        if heat_arr[r][c] + s_mout[r][c] >= amount:
-            erupted.add((r, c))
-
-            heat_arr[r][c] += amount
-
-            # 4방향으로 분출
-            for d in range(4):
-                q.append([r, c, d, amount])
+    visited = [[0]* N for _ in range (N)]
+    for v in valcano_info.keys():
+        r, c, p = valcano_info[v]
+        if valcano_power_arr[r][c] >= p:
+            for d in range (4):
+                q.append([r, c, p, d])
+            visited[r][c] = 1
+            valcano_steam_arr[r][c] += p
+            lst.add(v)
 
     while q:
-        ci, cj, cd, heat = q.popleft()
+        ci, cj, cp, cd = q.popleft()
 
-        # 현재 열이 0이면 더 이상 전달할 수 없음
-        if heat <= 0:
+        if cp <= 0:
             continue
+
+        for v in valcano_info.keys():
+            r, c, p = valcano_info[v]
+            if valcano_steam_arr[r][c] + valcano_power_arr[r][c] >= p and visited[r][c] == 0:
+                for d in range (4):
+                    q.append([r, c, p, d])
+                visited[r][c] = 1
+                valcano_steam_arr[r][c] += p
+                lst.add(v)
 
         ni = ci + didj[cd][0]
         nj = cj + didj[cd][1]
 
-        if not (0 <= ni < N and 0 <= nj < N):
-            continue
+        if 0<= ni < N and 0 <= nj < N and arr[ni][nj] == 0:
+            q.append([ni, nj, cp//2, cd])
+            valcano_steam_arr[ni][nj] += cp//2
 
-        if ocean[ni][nj] == 1:
-            continue
-
-        next_heat = heat // 2
-
-        heat_arr[ni][nj] += next_heat
-
-        if (
-            (ni, nj) in volcano_info
-            and (ni, nj) not in erupted
-            and heat_arr[ni][nj] + s_mout[ni][nj]
-                >= volcano_info[(ni, nj)]
-        ):
-            erupted.add((ni, nj))
-
-            amount = volcano_info[(ni, nj)]
-
-            heat_arr[ni][nj] += amount
+    return lst
 
 
-            for d in range(4):
-                q.append([ni, nj, d, amount])
-
-        if next_heat > 0:
-            q.append([ni, nj, cd, next_heat])
-
-    return erupted
-
-N, M, K = map(int, input().split())
-ocean = [list(map(int, input().split())) for _ in range (N)]
-
-ans = [0] * (M+1)
+N, M, V = map(int, input().split())
+#바다의 정보
+arr = [list(map(int, input().split())) for _ in range (N)]
+turtle_arr = [[0]* N for _ in range (N)]
+valcano_power_arr = [[0]* N for _ in range (N)]
 
 turtle_info = dict()
-turtle_arr = [[0] * N for _ in range (N)]
 for m in range (1, M+1):
     r, c = map(int, input().split())
-    turtle_info[m] = [r, c]
+    turtle_info[m] = [r, c, 0]
     turtle_arr[r][c] = m
 
-
-volcano_info = dict()
-s_mout = [[0] * N for _ in range (N)]
-for k in range (K):
+valcano_info = dict()
+for v in range (1, V+1):
     r, c, p = map(int, input().split())
-    volcano_info[(r, c)] = p
-
-
-heat_arr = [[0] * N for _ in range (N)]
+    valcano_info[v] = [r, c, p]
 
 turn = 0
 
-for _ in range (100):
-
-    if len(turtle_info) == 0:
-        break
+while True:
 
     turn += 1
+    #print(f"{turn}턴=================")
+    if turn > 100:
+        break
 
-    #[1] 거북이의 순차적인 이동
-    for turtle in range (1, M+1):
-        #움직일 수 있는 거북이면..
-        if turtle_info.get(turtle):
-            tr, tc = turtle_info[turtle][0], turtle_info[turtle][1]
-            turtle_arr[tr][tc] = 0 #흔적 지워
-            ntr, ntc = move_turtle(tr, tc, N-1, N-1)
+    for turtle in turtle_info.keys():
+        if turtle_info[turtle][2] == 0:
+            break
+    else:
+        break
 
-            if (ntr, ntc) == (N-1, N-1):
-                ans[turtle] = turn
-                turtle_info.pop(turtle)
-            else:
-                turtle_arr[ntr][ntc] = turtle
-                turtle_info[turtle] = [ntr, ntc]
+    valcano_steam_arr = [[0] * N for _ in range(N)]
 
+    #[1] 이동 가능한 거북이 이동
+    for turtle in turtle_info.keys():
+        if turtle_info[turtle][2] != 0:
+            continue
+        else:
+            r, c, *_ = turtle_info[turtle]
+            #print(f"{turtle}번 거북이")
+            turtle_arr[r][c] = 0 #있던 위치 지워주기
+            nr, nc = bfs(r, c)
+            if (nr, nc) == (-1, -1): #이동할 수 없음
+                turtle_arr[r][c] = turtle
+            elif (nr, nc) == (N-1, N-1): #안식처 도착
+                turtle_info[turtle] = [nr, nc, turn]
+            else: #일반 이동
+                turtle_arr[nr][nc] = turtle
+                turtle_info[turtle] = [nr, nc, 0]
 
-    #[2] 화산의 압력 10씩 증가
-    #실험
-    for r, c in list(volcano_info.keys()):
-        s_mout[r][c] += 10
-
+    # print("거북이 이동")
+    # for row in turtle_arr:
+    #     print(*row)
+    #
+    # print(turtle_info)
+    #[2] 화산의 압력이 증가
+    for r, c, *_ in valcano_info.values():
+        valcano_power_arr[r][c] += 10
+    # print("압력 10 증가 후")
+    # for row in valcano_power_arr:
+    #     print(*row)
 
     #[3] 화산 분출 및 연쇄 반응
-    exploded_vols = eruption()
+    exploded = explode()
+    # print()
+    # print(exploded)
+    # for row in valcano_steam_arr:
+    #     print(*row)
 
-    #[4] 바다거북의 화석화
-    for turtle in list(turtle_info.keys()):
-        tr, tc = turtle_info[turtle][0], turtle_info[turtle][1]
-        if heat_arr[tr][tc] >= 20:
-            turtle_info.pop(turtle)
-            turtle_arr[tr][tc] = -1 #화석화
-            ans[turtle] = -1 #정답에도 기롷ㄱ
+    #[4] 화석화
+    for t in turtle_info.keys():
+        r, c, state = turtle_info[t]
+        if state == 0:
+            if valcano_steam_arr[r][c] >= 20:
+                turtle_info[t][2] = -1
+                turtle_arr[r][c] = -1
 
-    #[5] 열기 정보 초기화
-    #바다 위의 모든 열기 정보 사라짐.
-    #분출한! 모든 화산 마그마 압력은 0이 되고 아닌 화산은 그대로 유지.
-    new_heat_arr = [[0] * N for _ in range (N)]
-    for vr, vc in list(volcano_info.keys()):
-        if not (vr, vc) in exploded_vols:
-            pass
-        else:
-            s_mout[vr][vc] = 0
+    # print(turtle_info)
+    # print("거북이 화석화 후")
+    # for row in turtle_arr:
+    #     print(*row)
 
-
-    heat_arr = new_heat_arr
+    #[5] 분출한 화산의 압력은 0으로 만들고 나머지는 그대로로 하기
+    for v in valcano_info.keys():
+        if v in exploded:
+            r, c, p = valcano_info[v]
+            valcano_power_arr[r][c] = 0
 
 
-for a in range(1, M+1):
-    if ans[a] == 0:
-        ans[a] = -1
-    print(ans[a])
+for turtle in turtle_info.keys():
+    if turtle_info[turtle][2] == 0:
+        turtle_info[turtle][2] = -1
+    print(turtle_info[turtle][2])
